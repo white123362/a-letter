@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>恋综模拟器 · 18天</title>
+    <title>恋综模拟器 · 玩家版</title>
     <style>
         * {
             margin: 0;
@@ -84,7 +84,7 @@
             font-size: 14px;
             line-height: 1.8;
             min-height: 80px;
-            max-height: 220px;
+            max-height: 300px;
             overflow-y: auto;
         }
         .scene .hl {
@@ -119,28 +119,10 @@
             font-weight: bold;
             color: #f5c842;
         }
-        .couple-item .status {
-            font-size: 12px;
-            padding: 2px 10px;
-            border-radius: 12px;
-            background: #1a1a2e;
-        }
-        .status.yes {
-            color: #4caf50;
-            border: 1px solid #4caf50;
-        }
-        .status.no {
-            color: #ff6b6b;
-            border: 1px solid #ff6b6b;
-        }
-        .status.unsure {
-            color: #f5c842;
-            border: 1px solid #f5c842;
-        }
         .mood-row {
             display: flex;
             flex-wrap: wrap;
-            gap: 8px;
+            gap: 6px;
             margin: 6px 0;
         }
         .mood-tag {
@@ -183,15 +165,6 @@
             border-color: #f5c842;
             color: #f5c842;
         }
-        .btn-danger {
-            background: #3a0a0a;
-            border: 1px solid #6a2a2a;
-            color: #ff6b6b;
-        }
-        .btn-danger:hover {
-            border-color: #ff0000;
-            color: #ff0000;
-        }
         .hidden {
             display: none;
         }
@@ -215,12 +188,6 @@
             border-bottom: 1px solid #1a2a3a;
             font-size: 14px;
         }
-        .final-result .pair .decide-yes {
-            color: #4caf50;
-        }
-        .final-result .pair .decide-no {
-            color: #ff6b6b;
-        }
         .summary-grid {
             display: grid;
             grid-template-columns: 1fr 1fr;
@@ -243,9 +210,77 @@
             font-weight: bold;
             font-size: 16px;
         }
-        .scroll-box {
-            max-height: 300px;
-            overflow-y: auto;
+        .interview-box {
+            background: #0a0a18;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border-left: 3px solid #4fc3f7;
+            margin: 6px 0;
+            font-size: 14px;
+            color: #a8d8ea;
+        }
+        .interview-box .speaker {
+            color: #f5c842;
+            font-weight: bold;
+        }
+        .char-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 6px 0;
+        }
+        .char-card {
+            background: #0a0a18;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #1a2a3a;
+            font-size: 12px;
+            text-align: center;
+        }
+        .char-card .name {
+            color: #f5c842;
+            font-weight: bold;
+        }
+        .char-card .detail {
+            color: #888;
+            font-size: 11px;
+        }
+        .char-card.player {
+            border-color: #f5c842;
+            background: #1a1a2e;
+        }
+        .input-area {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .input-area input,
+        .input-area select {
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #2a3a5e;
+            background: #0a0a18;
+            color: #eee;
+            font-size: 15px;
+            width: 100%;
+        }
+        .input-area input:focus,
+        .input-area select:focus {
+            outline: none;
+            border-color: #f5c842;
+        }
+        .input-area label {
+            color: #888;
+            font-size: 13px;
+            margin-top: 4px;
+        }
+        .input-area .row {
+            display: flex;
+            gap: 10px;
+        }
+        .input-area .row input {
+            flex: 1;
         }
         .death-notice {
             background: #1a0000;
@@ -282,299 +317,579 @@
             text-align: center;
             margin-top: 8px;
         }
-        .char-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
+        .choice-grid {
+            display: flex;
+            flex-direction: column;
             gap: 6px;
-            margin: 6px 0;
+            margin: 8px 0;
         }
-        .char-card {
-            background: #0a0a18;
-            padding: 8px;
-            border-radius: 8px;
-            border: 1px solid #1a2a3a;
-            font-size: 12px;
-            text-align: center;
-        }
-        .char-card .name {
-            color: #f5c842;
-            font-weight: bold;
-        }
-        .char-card .detail {
-            color: #888;
-            font-size: 11px;
-        }
-        .interview-box {
-            background: #0a0a18;
-            padding: 10px 14px;
+        .choice-grid button {
+            background: #1a1a2e;
+            border: 1px solid #2a3a5e;
+            color: #eee;
+            padding: 12px 16px;
             border-radius: 10px;
-            border-left: 3px solid #4fc3f7;
-            margin: 6px 0;
+            text-align: left;
             font-size: 14px;
-            color: #a8d8ea;
+            cursor: pointer;
+            transition: 0.2s;
         }
-        .interview-box .speaker {
-            color: #f5c842;
+        .choice-grid button:hover {
+            background: #252545;
+            border-color: #f5c842;
+        }
+        .choice-grid button:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .choice-grid button.danger {
+            border-color: #6a2a2a;
+        }
+        .choice-grid button.danger:hover {
+            background: #2a0a0a;
+            border-color: #ff0000;
+        }
+        .choice-grid button.love {
+            border-color: #2a5a6a;
+        }
+        .choice-grid button.love:hover {
+            background: #0a2a3a;
+            border-color: #4fc3f7;
+        }
+
+        /* ===== 大弹窗样式 ===== */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.85);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+            animation: fadeIn 0.3s ease;
+        }
+        .modal-overlay.hidden {
+            display: none;
+        }
+        .modal-box {
+            max-width: 460px;
+            width: 100%;
+            background: #1a1a2e;
+            border-radius: 20px;
+            padding: 28px 24px;
+            border: 3px solid #f5c842;
+            box-shadow: 0 0 60px rgba(245, 200, 66, 0.15);
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: slideUp 0.4s ease;
+        }
+        .modal-box.danger {
+            border-color: #ff0000;
+            box-shadow: 0 0 60px rgba(255, 0, 0, 0.25);
+            animation: slideUp 0.4s ease, shake 0.5s ease;
+        }
+        .modal-box .modal-title {
+            text-align: center;
+            font-size: 22px;
             font-weight: bold;
+            color: #f5c842;
+            margin-bottom: 12px;
+            border-bottom: 1px solid #2a2a2a;
+            padding-bottom: 12px;
+        }
+        .modal-box.danger .modal-title {
+            color: #ff0000;
+        }
+        .modal-box .modal-body {
+            font-size: 15px;
+            line-height: 1.9;
+            color: #ddd;
+            padding: 8px 0;
+        }
+        .modal-box .modal-body .hl {
+            color: #f5c842;
+        }
+        .modal-box .modal-body .dr {
+            color: #ff6b6b;
+        }
+        .modal-box .modal-body .event {
+            color: #4fc3f7;
+        }
+        .modal-box .modal-body .pair-line {
+            padding: 4px 0;
+            border-bottom: 1px solid #1a2a3a;
+            font-size: 14px;
+        }
+        .modal-box .modal-btn {
+            display: block;
+            width: 100%;
+            padding: 14px;
+            margin-top: 16px;
+            border: none;
+            border-radius: 30px;
+            font-size: 16px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: 0.2s;
+            background: #f5c842;
+            color: #1a1a2e;
+        }
+        .modal-box .modal-btn:hover {
+            background: #ffd966;
+        }
+        .modal-box.danger .modal-btn {
+            background: #ff0000;
+            color: #fff;
+        }
+        .modal-box.danger .modal-btn:hover {
+            background: #cc0000;
+        }
+        .modal-box .modal-choice {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            margin: 12px 0;
+        }
+        .modal-box .modal-choice button {
+            background: #0a0a18;
+            border: 1px solid #2a3a5e;
+            color: #eee;
+            padding: 12px 16px;
+            border-radius: 10px;
+            font-size: 14px;
+            text-align: left;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .modal-box .modal-choice button:hover {
+            background: #252545;
+            border-color: #f5c842;
+        }
+        .modal-box .modal-choice button.danger {
+            border-color: #6a2a2a;
+        }
+        .modal-box .modal-choice button.danger:hover {
+            background: #2a0a0a;
+            border-color: #ff0000;
+        }
+        .modal-box .modal-choice button.love {
+            border-color: #2a5a6a;
+        }
+        .modal-box .modal-choice button.love:hover {
+            background: #0a2a3a;
+            border-color: #4fc3f7;
+        }
+        .modal-box .modal-input {
+            width: 100%;
+            padding: 12px 14px;
+            border-radius: 10px;
+            border: 1px solid #2a3a5e;
+            background: #0a0a18;
+            color: #eee;
+            font-size: 15px;
+            margin: 8px 0;
+        }
+        .modal-box .modal-input:focus {
+            outline: none;
+            border-color: #f5c842;
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+        @keyframes slideUp {
+            0% { transform: translateY(40px); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
+        }
+        @keyframes shake {
+            0%, 100% { transform: translateX(0); }
+            20% { transform: translateX(-12px); }
+            40% { transform: translateX(12px); }
+            60% { transform: translateX(-8px); }
+            80% { transform: translateX(8px); }
         }
     </style>
 </head>
 <body>
-<div class="box" id="app">
-    <h1>🌸 恋综模拟器</h1>
-    <div class="sub">18天 · 心动与抉择</div>
+<div class="box">
+    <h1>🌸 恋综模拟器 · 玩家版</h1>
+    <div class="sub">18天 · 心动 · 争夺 · 背叛</div>
 
-    <div class="stats">
-        <div class="stat-box">📅 第 <span class="num" id="dayNum">0</span> 天</div>
-        <div class="stat-box">💑 <span class="num" id="coupleCount">5</span> 对</div>
-        <div class="stat-box">💀 <span class="num" id="deathCount">0</span></div>
+    <!-- 注册 -->
+    <div id="registerArea">
+        <div style="color:#f5c842;font-size:18px;text-align:center;margin-bottom:12px;">📝 注册你的角色</div>
+        <div class="input-area">
+            <input type="text" id="playerName" placeholder="你的名字">
+            <div class="row">
+                <select id="playerGender">
+                    <option value="男">男</option>
+                    <option value="女">女</option>
+                </select>
+                <input type="text" id="playerHobby" placeholder="爱好（如：健身、画画）">
+            </div>
+            <input type="text" id="playerStatus" placeholder="地位（如：富二代、打工人、艺术家）">
+            <button class="btn" id="registerBtn">✅ 进入恋综</button>
+        </div>
     </div>
 
-    <div id="phaseDisplay" class="phase-tag">前期拍摄 · 第0天</div>
-    <div class="day-display" id="dayDisplay">第 0 天</div>
-
-    <div class="scene" id="sceneDisplay">
-        点击下方按钮开始旅程。
+    <!-- 游戏 -->
+    <div id="gameArea" class="hidden">
+        <div class="stats">
+            <div class="stat-box">📅 第 <span class="num" id="dayNum">0</span> 天</div>
+            <div class="stat-box">💑 <span class="num" id="coupleCount">5</span> 对</div>
+            <div class="stat-box">💀 <span class="num" id="deathCount">0</span></div>
+        </div>
+        <div id="phaseDisplay" class="phase-tag">前期拍摄 · 第0天</div>
+        <div class="day-display" id="dayDisplay">第 0 天</div>
+        <div class="scene" id="sceneDisplay"></div>
+        <div id="charList" class="char-grid"></div>
+        <div id="coupleList" class="couple-list"></div>
+        <div id="moodDisplay" class="mood-row"></div>
+        <div id="interviewDisplay"></div>
+        <div id="choiceArea" class="choice-grid hidden"></div>
+        <div id="playerInputArea" class="input-area hidden">
+            <input type="text" id="playerResponse" placeholder="输入你的回答...">
+            <button class="btn" id="submitResponseBtn">💬 发送</button>
+        </div>
+        <div id="deathNotice" class="death-notice hidden"><div class="icon">💀</div><div class="msg" id="deathMsg"></div></div>
+        <div id="finalResult" class="final-result hidden"></div>
+        <button class="btn" id="mainBtn">📅 新的一天</button>
+        <button class="btn btn-secondary hidden" id="resetBtn">🔄 重新开始</button>
+        <a href="https://white123362.github.io/a-letter/" class="back-link">← 返回</a>
+        <div class="note">💡 每天都有新剧情 · 你的选择影响结局</div>
     </div>
+</div>
 
-    <!-- 角色列表 -->
-    <div id="charList" class="char-grid"></div>
-
-    <!-- CP列表 -->
-    <div id="coupleList" class="couple-list"></div>
-
-    <!-- 心情 -->
-    <div id="moodDisplay" class="mood-row"></div>
-
-    <!-- 采访 -->
-    <div id="interviewDisplay"></div>
-
-    <!-- 最终结果 -->
-    <div id="finalResult" class="final-result hidden"></div>
-
-    <!-- 死亡通知 -->
-    <div id="deathNotice" class="death-notice hidden">
-        <div class="icon">💀</div>
-        <div class="msg" id="deathMsg"></div>
+<!-- ===== 大弹窗 ===== -->
+<div id="modalOverlay" class="modal-overlay hidden">
+    <div class="modal-box" id="modalBox">
+        <div class="modal-title" id="modalTitle">📢 通知</div>
+        <div class="modal-body" id="modalBody"></div>
+        <button class="modal-btn" id="modalBtn">知道了</button>
     </div>
-
-    <!-- 按钮 -->
-    <button class="btn" id="mainBtn">▶ 开始旅程</button>
-    <button class="btn btn-secondary hidden" id="resetBtn">🔄 重新开始</button>
-
-    <a href="https://white123362.github.io/a-letter/" class="back-link">← 返回密室推理</a>
-    <div class="note">💡 点击"新的一天"推进剧情 · 第17天最终抉择</div>
 </div>
 
 <script>
     // ============================================================
-    //  恋综模拟器 · 完整逻辑
+    //  恋综模拟器 · 玩家版 完整逻辑 + 大弹窗
     // ============================================================
 
-    // ---------- 角色数据 ----------
-    var femaleNames = ['望舒', '梦汝', '思瑶', '郁瑾', '桃子'];
-    var maleNames = ['紫苑', '姜赫', '陆屿', '周野', '谢衍'];
-    var personalities = ['表面温柔，内心阴暗', '外表柔弱，控制欲极强', '清纯人设，内心阴狠', '仁心表象，私心极重', '温文尔雅，心胸狭隘'];
-    var malePersonalities = ['沉默寡言，内心细腻', '急躁但重情义', '温柔但懦弱', '精明算计', '自负且敏感'];
-    var occupations = ['游戏博主', '舞者', '歌手', '外科医生', '声乐老师'];
-    var maleOccupations = ['CEO', '摄影师', '律师', '自由职业者', '设计师'];
-    var moods = ['😊', '😐', '😔', '😡', '😢'];
+    // ---------- 角色池 ----------
+    var FEMALE_NAMES = ['富婆', '大小姐', '老板娘', '时灵', '4b'];
+    var MALE_NAMES = ['蛙蛙', '青蛙', '吉力', '肉片', '挽辰'];
+    var FEMALE_PERSONALITIES = ['表面高冷，内心渴望被爱', '娇生惯养，但极度聪明', '掌控欲强，善于算计', '神秘冷淡，藏有秘密', '毒舌但重情义'];
+    var MALE_PERSONALITIES = ['表面玩世不恭，内心深情', '温吞但极端忠诚', '精明商人，利益至上', '暴躁但重感情', '温柔却极度敏感'];
+    var FEMALE_OCCUPATIONS = ['企业继承人', '画廊老板', '网红博主', '金融操盘手', '自由艺术家'];
+    var MALE_OCCUPATIONS = ['创业者', '投资顾问', '酒吧老板', '职业赛车手', '独立设计师'];
+    var MOODS = ['😊', '😐', '😔', '😡', '😢', '😏', '🥰', '😤'];
 
-    var events = [
-        '你们在营地散步时，遇到了前任。',
-        '有人酒后吐真言，爆出了旧事。',
-        '下雨了，你和她共撑一把伞。',
-        '节目组安排了任务：互换身份演戏。',
-        '其中一位嘉宾情绪崩溃，当场离场。',
-        '有人在房车里发现了一封旧情书。',
-        '你收到了一条匿名消息。',
-        '篝火晚会上，有人表白了。',
-        '节目组安排了一次秘密约会。'
+    // ---------- 事件池 ----------
+    var EVENTS = [
+        '营地的篝火晚会进行到一半，突然有人提议玩"真心话大冒险"。你被点名了。有人借着酒劲问出了藏在心底很久的问题……空气突然安静了。',
+        '今天节目组安排了双人任务：你们要一起做一顿晚饭。厨房里，你发现对方切菜的手法很熟练，但眼神总是躲闪。锅里的油溅了出来，她下意识挡在了你前面。',
+        '深夜，你听到隔壁房车传来争吵声。是其中一对CP在吵架。你隐约听到自己的名字被提到。第二天早上，那对CP的气氛明显不对劲。',
+        '一场突如其来的暴雨困住了所有人。在狭窄的屋檐下，你们被迫紧紧靠在一起。她身上有淡淡的栀子花味道。你注意到她的睫毛在微微颤抖。',
+        '节目组突然宣布：今天要互换CP。你被分配到一个完全陌生的人身边。原本的CP看着你，眼神里有一种说不清道不明的东西。',
+        '你在营地角落发现了一封信，信封上写着你的名字。打开后，里面只有一句话："你相信命运吗？"字迹很陌生，但你觉得在哪里见过。',
+        '篝火边，有人提议"每个人说一个从未告诉过任何人的秘密"。轮到你时，你感到所有人的目光都集中在身上。你注意到有人的手在发抖。',
+        '今天的任务是"寻找遗失的戒指"。你们被分散到森林里。你听到不远处传来急促的脚步声，好像有人在跟踪你。',
+        '有人喝醉了，在众人面前说出了不该说的话。现场一片哗然。你看到有人的脸色瞬间变得苍白。',
+        '节目组安排了一场"真心话拍卖会"——每个人可以用自己的秘密换取别人的秘密。有人为了得到一个答案，押上了自己最深的秘密。',
+        '你收到了一条匿名短信："小心你身边最亲近的人。"你握着手机，手心出汗。你的CP正在你身后微笑着看你。',
+        '今天是你和CP的"单独约会日"。你们被送到一座山顶的玻璃屋里。窗外是漫天的星星，但屋内的气氛却越来越紧张。',
+        '有人突然宣布要退出节目。所有人的目光都集中在一个人身上。你看到那个人的眼眶红了，但嘴角却强撑着笑。',
+        '节目组安排了一场"真假真心话"——每个人要说三句话，其中只有一句是真的。轮到你时，你发现自己在发抖。',
+        '深夜，你听到有人在哭。你悄悄走过去，发现是你某个CP在躲着哭。她看到你，用力擦掉眼泪："没事，只是沙子进了眼睛。"',
+        '今天的任务是"写给未来自己的一封信"。你写完最后一句话时，发现有人一直在悄悄看你。',
+        '距离最终抉择还有三天。营地的气氛变得异常紧张。有人在私下里拉拢盟友，有人在偷偷收拾行李。你感觉到有人在背后议论你。',
+        '有人在你门口放了一束向日葵。卡片上只写了一个字："等"。你不知道那是谁放的，但你决定等下去。'
     ];
 
-    var interviewQuestions = [
-        '今天有什么想对对方说的？',
-        '你觉得这段关系还有救吗？',
-        '你后悔来参加这个节目吗？',
-        '如果有机会重新选择，你还会选TA吗？',
-        '你觉得自己在这段关系里做得对吗？'
+    // ---------- 恐怖事件（红色弹窗） ----------
+    var HORROR_EVENTS = [
+        '💀 深夜，你被一声尖叫惊醒。你冲出房车，看到一个人倒在血泊中。是其中一位嘉宾。你认出她手上握着的那片黄色布料……那是你CP的。',
+        '💀 你在营地后山发现了一具尸体。是昨天还和你说话的人。你转身想跑，却发现身后站着一个人。他在笑。',
+        '💀 有人在你枕头下放了一把刀。刀刃上刻着你的名字。你感到脊背发凉——有人在警告你。',
+        '💀 节目组突然消失了。营地只剩下你们。没有信号，没有食物。有人提议："我们之中，有一个人是凶手。"',
+        '💀 你收到了一段录音。里面是有人密谋杀死你的对话。你认出了其中一个声音——那是你最信任的人。',
+        '💀 一个嘉宾在众目睽睽之下倒地不起。他最后说了一句话："凶手就在你们中间。"然后闭上了眼睛。'
     ];
 
-    // ---------- 状态 ----------
+    // ---------- 采访问题 ----------
+    var INTERVIEW_QUESTIONS = [
+        '你觉得你在这段关系里，是付出更多的那个人，还是接受更多的那个人？为什么？',
+        '如果明天就是最后一天，你会对他说什么？你会后悔没有说过什么？',
+        '你觉得他/她对你来说，意味着什么？是习惯、是依赖、还是真的爱？',
+        '你曾经想过放弃吗？是什么让你留下来了？',
+        '你觉得自己在这段关系里，有没有隐藏过什么？你愿意说出来吗？'
+    ];
+
+    // ---------- 特殊剧情 ----------
+    var SPECIAL_PLOTS = [
+        { type: 'steal', text: '有人公开向你表示好感。但你知道，那个人是你CP最好的朋友。你看到你CP的脸色变了。', choices: ['接受TA的好感', '婉拒TA，表明立场', '把这件事告诉CP'] },
+        { type: 'betray', text: '你发现有人在背后说你坏话。那个人是你信任的人。你手里有一份录音。', choices: ['公开录音，揭穿TA', '私下找TA对质', '装作不知道，暗中观察'] },
+        { type: 'fight', text: '两个人为你大打出手。现场一片混乱。节目组紧急介入。', choices: ['上前阻止', '站在其中一边', '转身离开，让他们自己解决'] },
+        { type: 'steal2', text: '你的CP被其他人看上了。那个人当着你的面邀请你的CP出去约会。', choices: ['直接拒绝那个人', '让CP自己决定', '用更浪漫的方式邀请CP'] },
+        { type: 'kill', text: '有人死了。警察来了。所有人都被封锁在营地。你知道是谁做的。', choices: ['站出来指认凶手', '保持沉默，保护某个人', '自己扛下罪名'] }
+    ];
+    // ============================================================
+    //  状态
+    // ============================================================
     var state = {
-        day: 0,
-        phase: 'initial', // initial | running | final | ended
+        player: null,
         characters: [],
         couples: [],
+        day: 0,
         deaths: 0,
+        phase: 'register',
+        ended: false,
+        started: false,
         willCards: {},
         moodBoard: {},
         finalChoices: {},
-        ended: false,
-        deathTriggered: false,
-        dayLog: [],
-        started: false
+        usedEvents: [],
+        usedHorrors: [],
+        usedInterviews: [],
+        specialUsed: false,
+        playerResponses: [],
+        waitingForResponse: false,
+        currentSpecial: null
     };
 
-    // ---------- 初始化角色 ----------
-    function initCharacters() {
-        var chars = [];
-        var fCount = femaleNames.length;
-        var mCount = maleNames.length;
-        var shuffledMales = maleNames.slice().sort(function() { return Math.random() - 0.5; });
+    // ============================================================
+    //  弹窗系统
+    // ============================================================
+    function showModal(title, bodyHTML, btnText, isDanger, callback) {
+        var overlay = document.getElementById('modalOverlay');
+        var box = document.getElementById('modalBox');
+        var titleEl = document.getElementById('modalTitle');
+        var bodyEl = document.getElementById('modalBody');
+        var btn = document.getElementById('modalBtn');
 
-        for (var i = 0; i < fCount; i++) {
-            var mName = shuffledMales[i % mCount];
+        overlay.classList.remove('hidden');
+        box.className = 'modal-box' + (isDanger ? ' danger' : '');
+        titleEl.textContent = title;
+        bodyEl.innerHTML = bodyHTML;
+        btn.textContent = btnText || '知道了';
+
+        btn.onclick = null;
+        var oldChoices = box.querySelectorAll('.modal-choice');
+        oldChoices.forEach(function(el) { el.remove(); });
+
+        if (bodyHTML.indexOf('<!--choices-->') !== -1) {
+            var parts = bodyHTML.split('<!--choices-->');
+            bodyEl.innerHTML = parts[0];
+            var choiceContainer = document.createElement('div');
+            choiceContainer.className = 'modal-choice';
+
+            var special = state.currentSpecial;
+            if (special && special.choices) {
+                special.choices.forEach(function(ch, idx) {
+                    var cBtn = document.createElement('button');
+                    cBtn.textContent = ch;
+                    cBtn.className = (ch.indexOf('杀') !== -1 || ch.indexOf('揭穿') !== -1) ? 'danger' : 'love';
+                    cBtn.onclick = function() {
+                        closeModal();
+                        if (callback) callback(idx);
+                    };
+                    choiceContainer.appendChild(cBtn);
+                });
+            } else {
+                var c1 = document.createElement('button');
+                c1.textContent = '✅ 继续';
+                c1.className = 'love';
+                c1.onclick = function() { closeModal(); if (callback) callback(0); };
+                choiceContainer.appendChild(c1);
+                var c2 = document.createElement('button');
+                c2.textContent = '❌ 跳过';
+                c2.className = 'danger';
+                c2.onclick = function() { closeModal(); if (callback) callback(1); };
+                choiceContainer.appendChild(c2);
+            }
+            box.appendChild(choiceContainer);
+            btn.style.display = 'none';
+        } else {
+            btn.style.display = 'block';
+            btn.onclick = function() {
+                closeModal();
+                if (callback) callback();
+            };
+        }
+
+        if (isDanger) {
+            box.style.animation = 'none';
+            setTimeout(function() {
+                box.style.animation = 'slideUp 0.4s ease, shake 0.5s ease';
+            }, 10);
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('modalOverlay').classList.add('hidden');
+    }
+
+    // ============================================================
+    //  工具函数
+    // ============================================================
+    function shuffleArray(arr) {
+        for (var i = arr.length - 1; i > 0; i--) {
+            var j = Math.floor(Math.random() * (i + 1));
+            var temp = arr[i];
+            arr[i] = arr[j];
+            arr[j] = temp;
+        }
+        return arr;
+    }
+
+    function getRandomItem(arr, used) {
+        var available = arr.filter(function(item) { return used.indexOf(item) === -1; });
+        if (available.length === 0) { used.length = 0; available = arr; }
+        var picked = available[Math.floor(Math.random() * available.length)];
+        used.push(picked);
+        return picked;
+    }
+
+    function getPlayerCouple() {
+        for (var i = 0; i < state.couples.length; i++) {
+            var c = state.couples[i];
+            if (c.a.isPlayer || c.b.isPlayer) return c;
+        }
+        return null;
+    }
+
+    function getPlayer() {
+        return state.player;
+    }
+
+    // ============================================================
+    //  初始化
+    // ============================================================
+    function initCharacters(player) {
+        var chars = [];
+        var femalePool = FEMALE_NAMES.slice();
+        var malePool = MALE_NAMES.slice();
+
+        shuffleArray(femalePool);
+        shuffleArray(malePool);
+
+        var femaleList = femalePool.slice();
+        var maleList = malePool.slice();
+
+        if (player.gender === '女') {
+            femaleList[0] = player.name;
+        } else {
+            maleList[0] = player.name;
+        }
+
+        for (var i = 0; i < femaleList.length; i++) {
+            var name = femaleList[i];
+            var isPlayer = (name === player.name);
+            var idx = i % FEMALE_PERSONALITIES.length;
             chars.push({
-                name: femaleNames[i],
-                age: 24 + Math.floor(Math.random() * 4),
+                name: name,
+                age: isPlayer ? 25 : 24 + Math.floor(Math.random() * 4),
                 gender: '女',
-                personality: personalities[i % personalities.length],
-                occupation: occupations[i % occupations.length],
-                partner: mName,
-                issues: Math.random() > 0.5 ? mName + ' 太闷了，不够懂我' : '对未来规划不一致',
-                isAlive: true
+                personality: isPlayer ? player.personality || '神秘' : FEMALE_PERSONALITIES[idx],
+                occupation: isPlayer ? player.status || '玩家' : FEMALE_OCCUPATIONS[i % FEMALE_OCCUPATIONS.length],
+                isPlayer: isPlayer,
+                isAlive: true,
+                hobby: isPlayer ? player.hobby || '未知' : ['健身', '画画', '写作', '旅行', '美食'][i % 5],
+                status: isPlayer ? player.status || '玩家' : ['富二代', '打工人', '艺术家', '自由职业', '学生'][i % 5]
             });
         }
 
-        // 重新打乱男性配对
-        var shuffledPairs = maleNames.slice().sort(function() { return Math.random() - 0.5; });
-        for (var j = 0; j < fCount; j++) {
-            var m = shuffledPairs[j % shuffledPairs.length];
-            // 找到已有的男性角色（避免重复）
-            var exists = false;
-            for (var k = 0; k < chars.length; k++) {
-                if (chars[k].partner === m) exists = true;
-            }
-            if (!exists) {
-                chars[j].partner = m;
-            }
+        for (var j = 0; j < maleList.length; j++) {
+            var mName = maleList[j];
+            var mIsPlayer = (mName === player.name);
+            var mIdx = j % MALE_PERSONALITIES.length;
+            chars.push({
+                name: mName,
+                age: mIsPlayer ? 27 : 25 + Math.floor(Math.random() * 5),
+                gender: '男',
+                personality: mIsPlayer ? player.personality || '神秘' : MALE_PERSONALITIES[mIdx],
+                occupation: mIsPlayer ? player.status || '玩家' : MALE_OCCUPATIONS[j % MALE_OCCUPATIONS.length],
+                isPlayer: mIsPlayer,
+                isAlive: true,
+                hobby: mIsPlayer ? player.hobby || '未知' : ['健身', '玩游戏', '旅行', '摄影', '音乐'][j % 5],
+                status: mIsPlayer ? player.status || '玩家' : ['富二代', '创业者', '打工人', '艺术家', '自由职业'][j % 5]
+            });
         }
 
-        // 添加男性角色
-        var usedMales = [];
-        for (var l = 0; l < chars.length; l++) {
-            usedMales.push(chars[l].partner);
-        }
-        var remainingMales = maleNames.filter(function(n) { return usedMales.indexOf(n) === -1; });
-        for (var p = 0; p < remainingMales.length; p++) {
-            var idx = p % chars.length;
-            chars[idx].partner = remainingMales[p];
-        }
-
-        // 重建男性列表
-        var maleList = [];
-        for (var q = 0; q < chars.length; q++) {
-            var mn = chars[q].partner;
-            // 检查是否已存在
-            var dup = false;
-            for (var r = 0; r < maleList.length; r++) {
-                if (maleList[r].name === mn) dup = true;
-            }
-            if (!dup) {
-                maleList.push({
-                    name: mn,
-                    age: 25 + Math.floor(Math.random() * 5),
-                    gender: '男',
-                    personality: malePersonalities[q % malePersonalities.length],
-                    occupation: maleOccupations[q % maleOccupations.length],
-                    partner: chars[q].name,
-                    issues: chars[q].name + ' 控制欲太强' + (Math.random() > 0.5 ? '，经常吵架' : '，沟通困难'),
-                    isAlive: true
-                });
-            }
-        }
-
-        var allChars = chars.concat(maleList);
-        // 确保每个角色都有partner
-        for (var s = 0; s < allChars.length; s++) {
-            if (!allChars[s].partner) {
-                var target = allChars.find(function(c) {
-                    return c.gender !== allChars[s].gender && c.partner === allChars[s].name;
-                });
-                if (target) allChars[s].partner = target.name;
-                else {
-                    var fallback = allChars.find(function(c) {
-                        return c.gender !== allChars[s].gender && c.name !== allChars[s].name;
-                    });
-                    if (fallback) allChars[s].partner = fallback.name;
-                }
-            }
-        }
-
-        return allChars;
-    }
-
-    // ---------- 配对 ----------
-    function pairCouples(chars) {
-        var couples = [];
         var females = chars.filter(function(c) { return c.gender === '女' && c.isAlive; });
         var males = chars.filter(function(c) { return c.gender === '男' && c.isAlive; });
+        shuffleArray(males);
 
-        for (var i = 0; i < Math.min(females.length, males.length); i++) {
-            var f = females[i];
-            var m = males.find(function(mc) { return mc.name === f.partner; }) || males[i % males.length];
-            couples.push({
-                a: f,
-                b: m,
-                aName: f.name,
-                bName: m.name
-            });
+        var couples = [];
+        for (var k = 0; k < Math.min(females.length, males.length); k++) {
+            var f = females[k];
+            var m = males[k % males.length];
+            if (f.isPlayer && m.isPlayer) {
+                var swap = males.find(function(mm) { return !mm.isPlayer; });
+                if (swap) { males[k] = swap; m = swap; }
+            }
+            couples.push({ a: f, b: m, aName: f.name, bName: m.name });
         }
-        return couples;
+
+        return { characters: chars, couples: couples };
     }
 
-    // ---------- 重置游戏 ----------
-    function resetGame() {
-        var chars = initCharacters();
-        state.characters = chars;
-        state.couples = pairCouples(chars);
-        state.day = 0;
-        state.deaths = 0;
-        state.ended = false;
-        state.deathTriggered = false;
-        state.finalChoices = {};
-        state.willCards = {};
-        state.moodBoard = {};
-        state.dayLog = [];
-        state.started = false;
-        state.phase = 'initial';
+    // ============================================================
+    //  注册
+    // ============================================================
+    function registerPlayer() {
+        var name = document.getElementById('playerName').value.trim();
+        var gender = document.getElementById('playerGender').value;
+        var hobby = document.getElementById('playerHobby').value.trim() || '未知';
+        var status = document.getElementById('playerStatus').value.trim() || '打工人';
 
-        chars.forEach(function(c) {
+        if (!name) { alert('请输入你的名字'); return; }
+
+        var player = {
+            name: name,
+            gender: gender,
+            age: 25 + Math.floor(Math.random() * 5),
+            hobby: hobby,
+            status: status,
+            personality: '神秘且充满魅力'
+        };
+
+        state.player = player;
+        var result = initCharacters(player);
+        state.characters = result.characters;
+        state.couples = result.couples;
+
+        state.characters.forEach(function(c) {
             state.willCards[c.name] = [];
             state.moodBoard[c.name] = [];
         });
 
-        document.getElementById('deathNotice').classList.add('hidden');
-        document.getElementById('finalResult').classList.add('hidden');
-        document.getElementById('mainBtn').textContent = '▶ 开始旅程';
-        document.getElementById('mainBtn').disabled = false;
-        document.getElementById('resetBtn').classList.add('hidden');
+        document.getElementById('registerArea').classList.add('hidden');
+        document.getElementById('gameArea').classList.remove('hidden');
 
+        state.started = true;
+        state.day = 0;
+        state.phase = 'initial';
         renderInitial();
         updateUI();
+
+        // 开局显示CP分配大弹窗
+        showCPAssignment();
     }
 
-    // ---------- 渲染初始 ----------
+    // ============================================================
+    //  渲染
+    // ============================================================
     function renderInitial() {
-        var scene = document.getElementById('sceneDisplay');
-        scene.innerHTML = '🌸 欢迎来到《心动信号》恋综现场！<br><br>5对男女即将开启18天的同居生活。<br>每天都有新的故事、新的选择。<br><br><span class="gray">点击下方按钮开始旅程。</span>';
-
-        var charGrid = document.getElementById('charList');
-        charGrid.innerHTML = '';
-        state.characters.forEach(function(c) {
-            var div = document.createElement('div');
-            div.className = 'char-card';
-            div.innerHTML = '<div class="name">' + c.name + '</div>' +
-                '<div class="detail">' + c.age + '岁 · ' + c.occupation + '</div>' +
-                '<div class="detail" style="color:#888;font-size:10px;">' + c.personality + '</div>' +
-                '<div class="detail" style="color:#4fc3f7;font-size:10px;">♥ ' + c.partner + '</div>';
-            charGrid.appendChild(div);
-        });
-
-        var coupleList = document.getElementById('coupleList');
-        coupleList.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:8px;">点击"开始旅程"后显示配对</div>';
-
+    var scene = document.getElementById('sceneDisplay');
+        var player = state.player;
+        scene.innerHTML = '🌸 欢迎来到《心动信号》！<br><br>你是 <span class="hl">' + player.name + '</span>（' + player.gender + '），' + player.status + '，爱好' + player.hobby + '。<br><br>5对男女即将开启18天的同居生活。<br>每天都有新的故事、新的选择。<br>你的每一个决定，都会改变结局。<br><br><span class="gray">点击"新的一天"开始你的旅程。</span>';
+        renderCharacters();
+        renderCouples();
         document.getElementById('moodDisplay').innerHTML = '';
         document.getElementById('interviewDisplay').innerHTML = '';
         document.getElementById('dayNum').textContent = '0';
@@ -582,77 +897,81 @@
         document.getElementById('deathCount').textContent = '0';
         document.getElementById('phaseDisplay').textContent = '前期拍摄 · 第0天';
         document.getElementById('dayDisplay').textContent = '第 0 天';
+        document.getElementById('mainBtn').disabled = false;
     }
 
-    // ---------- 推进一天 ----------
+    function renderCharacters() {
+        var grid = document.getElementById('charList');
+        grid.innerHTML = '';
+        state.characters.forEach(function(c) {
+            var div = document.createElement('div');
+            div.className = 'char-card' + (c.isPlayer ? ' player' : '');
+            div.innerHTML = '<div class="name">' + c.name + '</div><div class="detail">' + c.age + '岁 · ' + c.occupation + '</div><div class="detail" style="color:#888;font-size:10px;">' + c.personality + '</div><div class="detail" style="color:#4fc3f7;font-size:10px;">♥ ' + c.partner + '</div>';
+            grid.appendChild(div);
+        });
+    }
+
+    function renderCouples() {
+        var cl = document.getElementById('coupleList');
+        cl.innerHTML = '';
+        state.couples.forEach(function(cp) {
+            var a = cp.a,
+                b = cp.b;
+            var aAlive = a && a.isAlive !== false,
+                bAlive = b && b.isAlive !== false;
+            var div = document.createElement('div');
+            div.className = 'couple-item';
+            div.innerHTML = '<span class="names">' + cp.aName + ' ♥ ' + cp.bName + '</span><span style="font-size:12px;color:' + ((aAlive && bAlive) ? '#4caf50' : '#ff6b6b') + ';">' + (aAlive && bAlive ? '💕 进行中' : '💔 已结束') + '</span>';
+            cl.appendChild(div);
+        });
+    }
+
+    function showCPAssignment() {
+        var html = '<div style="text-align:center;font-size:20px;color:#f5c842;margin-bottom:12px;">💞 CP分配结果</div>';
+        state.couples.forEach(function(cp) {
+            html += '<div class="pair-line">' + cp.aName + ' ♥ ' + cp.bName + '</div>';
+        });
+        html += '<br><span class="gray">你的CP是：<span class="hl">' + getPlayerCouple().aName + ' ♥ ' + getPlayerCouple().bName + '</span></span>';
+        showModal('🎬 恋爱开始', html, '开始旅程', false);
+    }
+
     function advanceDay() {
         if (state.ended) return;
-        if (!state.started) {
-            state.started = true;
-            state.day = 1;
-        } else {
-            state.day++;
-        }
-
-        if (state.day > 17) {
-            triggerFinal();
-            return;
-        }
-
+        if (!state.started) { state.started = true;
+            state.day = 1; } else { state.day++; }
+        if (state.day > 17) { triggerFinal(); return; }
         state.phase = 'running';
         document.getElementById('mainBtn').textContent = '📅 新的一天';
         document.getElementById('resetBtn').classList.remove('hidden');
-
-        // 随机事件
-        var eventText = events[Math.floor(Math.random() * events.length)];
+        var eventText = getRandomItem(EVENTS, state.usedEvents);
         if (state.day > 10 && Math.random() < 0.08) {
-            // 死亡事件
             var victim = state.characters.filter(function(c) { return c.isAlive; });
             if (victim.length > 0) {
                 var dead = victim[Math.floor(Math.random() * victim.length)];
                 dead.isAlive = false;
                 state.deaths++;
-                state.deathTriggered = true;
                 document.getElementById('deathNotice').classList.remove('hidden');
-                document.getElementById('deathMsg').textContent = dead.name + ' 因意外/冲突死亡。节目被迫中断。';
+                document.getElementById('deathMsg').textContent = dead.name + ' 因意外/冲突死亡。';
                 state.ended = true;
                 document.getElementById('mainBtn').disabled = true;
                 updateUI();
-                renderDay(dead.name + ' 不幸去世...', eventText);
+                showModal('💀 悲剧发生', dead.name + ' 死了……', '重新开始', true);
                 return;
             }
         }
-
-        // 意愿卡
-        state.characters.forEach(function(c) {
-            if (!c.isAlive) return;
-            var choices = ['是', '否', '不确定'];
-            var choice = choices[Math.floor(Math.random() * choices.length)];
-            state.willCards[c.name].push(choice);
-        });
-
-        // 心情
-        state.characters.forEach(function(c) {
-            if (!c.isAlive) return;
-            var mood = moods[Math.floor(Math.random() * moods.length)];
-            state.moodBoard[c.name].push(mood);
-        });
-
-        // 采访
+        state.characters.forEach(function(c) { if (!c.isAlive) return; var ch = ['是', '否', '不确定']; state.willCards[c.name].push(ch[Math.floor(Math.random() * ch.length)]); });
+        state.characters.forEach(function(c) { if (!c.isAlive) return; state.moodBoard[c.name].push(MOODS[Math.floor(Math.random() * MOODS.length)]); });
         var interviewChars = state.characters.filter(function(c) { return c.isAlive; });
         var shuffled = interviewChars.sort(function() { return Math.random() - 0.5; });
         var selected = shuffled.slice(0, Math.min(3, shuffled.length));
-
         renderDay(eventText, selected);
         updateUI();
+        if (Math.random() < 0.25 && state.day > 3 && !state.specialUsed) { triggerSpecial(); }
     }
 
-    // ---------- 渲染每日 ----------
     function renderDay(eventText, selected) {
         var scene = document.getElementById('sceneDisplay');
         var html = '<span class="event">📌 ' + eventText + '</span><br><br>';
-
-        // 意愿卡
         html += '<span style="color:#f5c842;">📋 意愿卡</span><br>';
         var alive = state.characters.filter(function(c) { return c.isAlive; });
         alive.forEach(function(c) {
@@ -661,180 +980,127 @@
             var emoji = last === '是' ? '✅' : (last === '否' ? '❌' : '❓');
             html += '<span style="font-size:13px;">' + c.name + '：' + emoji + ' ' + last + '</span> ';
         });
-
-        // 心情
         html += '<br><br><span style="color:#4fc3f7;">😊 心情</span><br>';
         alive.forEach(function(c) {
-            var moodsList = state.moodBoard[c.name] || [];
-            var lastMood = moodsList.length > 0 ? moodsList[moodsList.length - 1] : '😐';
-            html += '<span style="font-size:18px;">' + c.name + ' ' + lastMood + '</span> ';
+            var mList = state.moodBoard[c.name] || [];
+            var lastM = mList.length > 0 ? mList[mList.length - 1] : '😐';
+            html += '<span style="font-size:18px;">' + c.name + ' ' + lastM + '</span> ';
         });
-
-        // 采访
         if (selected && selected.length > 0) {
             html += '<br><br><span style="color:#a8d8ea;">🎙️ 采访</span><br>';
-            var q = interviewQuestions[Math.floor(Math.random() * interviewQuestions.length)];
+            var q = INTERVIEW_QUESTIONS[Math.floor(Math.random() * INTERVIEW_QUESTIONS.length)];
             selected.forEach(function(c) {
                 html += '<div class="interview-box"><span class="speaker">' + c.name + '</span>：' + q + '<br><span style="color:#888;font-size:13px;">……（' + c.name + ' 沉默了片刻）</span></div>';
             });
         }
-
         scene.innerHTML = html;
-
-        // CP列表
-        var coupleList = document.getElementById('coupleList');
-        coupleList.innerHTML = '';
+        var cl = document.getElementById('coupleList');
+        cl.innerHTML = '';
         state.couples.forEach(function(cp) {
-            var a = cp.a;
-            var b = cp.b;
-            var aAlive = a && a.isAlive !== false;
-            var bAlive = b && b.isAlive !== false;
-            var statusText = (aAlive && bAlive) ? '💕 进行中' : '💔 已结束';
+            var a = cp.a,
+                b = cp.b;
+            var aAlive = a && a.isAlive !== false,
+                bAlive = b && b.isAlive !== false;
             var div = document.createElement('div');
             div.className = 'couple-item';
-            div.innerHTML = '<span class="names">' + cp.aName + ' ♥ ' + cp.bName + '</span>' +
-                '<span class="status" style="color:' + ((aAlive && bAlive) ? '#4caf50' : '#ff6b6b') + ';">' + statusText + '</span>';
-            coupleList.appendChild(div);
+            div.innerHTML = '<span class="names">' + cp.aName + ' ♥ ' + cp.bName + '</span><span style="font-size:12px;color:' + ((aAlive && bAlive) ? '#4caf50' : '#ff6b6b') + ';">' + (aAlive && bAlive ? '💕 进行中' : '💔 已结束') + '</span>';
+            cl.appendChild(div);
         });
-
-        // 心情显示
-        var moodDisplay = document.getElementById('moodDisplay');
-        moodDisplay.innerHTML = '';
-        var aliveNames = state.characters.filter(function(c) { return c.isAlive; });
-        aliveNames.forEach(function(c) {
-            var moodsList = state.moodBoard[c.name] || [];
-            var lastMood = moodsList.length > 0 ? moodsList[moodsList.length - 1] : '😐';
+        var md = document.getElementById('moodDisplay');
+        md.innerHTML = '';
+        state.characters.filter(function(c) { return c.isAlive; }).forEach(function(c) {
+            var mList = state.moodBoard[c.name] || [];
+            var lastM = mList.length > 0 ? mList[mList.length - 1] : '😐';
             var span = document.createElement('span');
             span.className = 'mood-tag';
-            span.innerHTML = '<span class="emoji">' + lastMood + '</span> ' + c.name;
-            moodDisplay.appendChild(span);
+            span.innerHTML = '<span class="emoji">' + lastM + '</span> ' + c.name;
+            md.appendChild(span);
         });
-
-        // 采访显示
-        var interviewDisplay = document.getElementById('interviewDisplay');
+        var id = document.getElementById('interviewDisplay');
         if (selected && selected.length > 0) {
-            var q = interviewQuestions[Math.floor(Math.random() * interviewQuestions.length)];
-            var html2 = '';
-            selected.forEach(function(c) {
-                html2 += '<div class="interview-box"><span class="speaker">' + c.name + '</span>：' + q + '<br><span style="color:#888;font-size:13px;">……（' + c.name + ' 沉默了片刻）</span></div>';
-            });
-            interviewDisplay.innerHTML = html2;
-        } else {
-            interviewDisplay.innerHTML = '';
-        }
-
+            var q = INTERVIEW_QUESTIONS[Math.floor(Math.random() * INTERVIEW_QUESTIONS.length)];
+            var h = '';
+            selected.forEach(function(c) { h += '<div class="interview-box"><span class="speaker">' + c.name + '</span>：' + q + '<br><span style="color:#888;font-size:13px;">……（' + c.name + ' 沉默了片刻）</span></div>'; });
+            id.innerHTML = h;
+        } else { id.innerHTML = ''; }
         updateUI();
     }
 
-    // ---------- 最终抉择 ----------
+    function triggerSpecial() {
+        state.specialUsed = true;
+        var plot = SPECIAL_PLOTS[Math.floor(Math.random() * SPECIAL_PLOTS.length)];
+        state.currentSpecial = plot;
+        var html = '⚠️ <span class="dr">特殊事件</span><br><br>' + plot.text + '<br><br><!--choices-->';
+        showModal('⚡ 特殊剧情', html, '', false, function(choice) {
+            var responses = ['你选择了：' + plot.choices[choice] + '<br><br>命运因此而改变……'];
+            if (choice === 0) { responses.push('你坚定地做出了选择。有人因此受伤，有人因此得救。'); } else if (choice === 1) { responses.push('你犹豫了。但最终还是做出了决定。空气凝固了。'); } else { responses.push('你选择了沉默。但有时候，沉默也是一种答案。'); }
+            showModal('📌 结局', responses.join(''), '继续', false);
+            state.specialUsed = true;
+        });
+    }
+
     function triggerFinal() {
         state.phase = 'final';
         document.getElementById('mainBtn').disabled = true;
         document.getElementById('mainBtn').textContent = '🏁 旅程结束';
-
         var scene = document.getElementById('sceneDisplay');
-        scene.innerHTML = '<span style="font-size:20px;color:#f5c842;">🎬 第17天 · 最终抉择</span><br><br>';
-
-        var finalHtml = '<div class="final-result"><div class="title">💌 最终选择</div>';
-
+        var html = '<span style="font-size:20px;color:#f5c842;">🎬 第17天 · 最终抉择</span><br><br>';
+        html += '<div class="final-result"><div class="title">💌 最终选择</div>';
         state.couples.forEach(function(cp) {
-            var a = cp.a;
-            var b = cp.b;
-            var aAlive = a && a.isAlive !== false;
-            var bAlive = b && b.isAlive !== false;
+            var a = cp.a,
+                b = cp.b;
+            var aAlive = a && a.isAlive !== false,
+                bAlive = b && b.isAlive !== false;
             var aDecide = aAlive ? (Math.random() > 0.4) : false;
             var bDecide = bAlive ? (Math.random() > 0.4) : false;
             state.finalChoices[cp.aName] = aDecide;
             state.finalChoices[cp.bName] = bDecide;
-
             var resultText = '';
-            if (aDecide && bDecide) {
-                resultText = '✅ 双方下车 → 复合/重新开始';
-            } else if (aDecide || bDecide) {
-                resultText = '⚠️ 一方下车 → 一方想挽回，一方已离开';
-            } else {
-                resultText = '❌ 双方不下车 → 各自分开';
-            }
-
-            finalHtml += '<div class="pair">' +
-                '<span>' + cp.aName + ' ♥ ' + cp.bName + '</span>' +
-                '<span style="font-size:13px;">' + resultText + '</span>' +
-                '</div>';
+            if (aDecide && bDecide) { resultText = '✅ 双方下车 → 复合/重新开始'; } else if (aDecide || bDecide) { resultText = '⚠️ 一方下车 → 一方想挽回，一方已离开'; } else { resultText = '❌ 双方不下车 → 各自分开'; }
+            html += '<div class="pair"><span>' + cp.aName + ' ♥ ' + cp.bName + '</span><span style="font-size:13px;">' + resultText + '</span></div>';
         });
-
-        finalHtml += '</div>';
-
-        // 统计
-        finalHtml += '<div class="summary-grid">';
-        finalHtml += '<div class="summary-item"><div class="label">总天数</div><div class="value">17</div></div>';
-        finalHtml += '<div class="summary-item"><div class="label">死亡人数</div><div class="value">' + state.deaths + '</div></div>';
-        finalHtml += '<div class="summary-item"><div class="label">存活CP</div><div class="value">' + state.couples.filter(function(cp) {
-            return cp.a.isAlive !== false && cp.b.isAlive !== false;
-        }).length + '</div></div>';
-        finalHtml += '<div class="summary-item"><div class="label">最终状态</div><div class="value" style="font-size:14px;">' +
-            (state.deaths > 0 ? '💔 有死亡' : '🌸 正常结束') + '</div></div>';
-        finalHtml += '</div>';
-
-        scene.innerHTML += finalHtml;
-
-        document.getElementById('finalResult').classList.remove('hidden');
-        document.getElementById('finalResult').innerHTML = finalHtml;
-
-        // 显示意愿卡趋势
+        html += '</div>';
+        html += '<div class="summary-grid">';
+        html += '<div class="summary-item"><div class="label">总天数</div><div class="value">17</div></div>';
+        html += '<div class="summary-item"><div class="label">死亡人数</div><div class="value">' + state.deaths + '</div></div>';
+        var aliveCP = state.couples.filter(function(cp) { return cp.a.isAlive !== false && cp.b.isAlive !== false; }).length;
+        html += '<div class="summary-item"><div class="label">存活CP</div><div class="value">' + aliveCP + '</div></div>';
+        html += '<div class="summary-item"><div class="label">最终状态</div><div class="value" style="font-size:14px;">' + (state.deaths > 0 ? '💔 有死亡' : '🌸 正常结束') + '</div></div>';
+        html += '</div>';
         var trendHtml = '<div style="margin-top:12px;"><span style="color:#f5c842;">📊 意愿卡趋势（最后3天）</span><br>';
         state.characters.forEach(function(c) {
             var cards = state.willCards[c.name] || [];
             var last3 = cards.slice(-3);
-            if (last3.length > 0) {
-                trendHtml += '<span style="font-size:13px;">' + c.name + '：' + last3.join(' → ') + '</span><br>';
-            }
+            if (last3.length > 0) trendHtml += '<span style="font-size:13px;">' + c.name + '：' + last3.join(' → ') + '</span><br>';
         });
         trendHtml += '</div>';
-        scene.innerHTML += trendHtml;
-
+        scene.innerHTML = html + trendHtml;
         document.getElementById('phaseDisplay').textContent = '最终抉择 · 第17天';
         document.getElementById('dayDisplay').textContent = '第 17 天 · 终';
+        document.getElementById('finalResult').classList.remove('hidden');
+        document.getElementById('finalResult').innerHTML = html;
         updateUI();
     }
 
-    // ---------- 更新UI ----------
     function updateUI() {
         document.getElementById('dayNum').textContent = state.day;
-        document.getElementById('coupleCount').textContent = state.couples.filter(function(cp) {
-            return cp.a.isAlive !== false && cp.b.isAlive !== false;
-        }).length;
+        var alive = state.couples.filter(function(cp) { return cp.a.isAlive !== false && cp.b.isAlive !== false; }).length;
+        document.getElementById('coupleCount').textContent = alive;
         document.getElementById('deathCount').textContent = state.deaths;
-        document.getElementById('phaseDisplay').textContent = state.phase === 'initial' ? '前期拍摄 · 第0天' :
-            (state.phase === 'final' ? '最终抉择 · 第17天' : '第' + state.day + '天 · 进行中');
-        document.getElementById('dayDisplay').textContent = state.phase === 'final' ? '第 17 天 · 终' :
-            (state.day > 0 ? '第 ' + state.day + ' 天' : '第 0 天');
+        document.getElementById('phaseDisplay').textContent = state.phase === 'initial' ? '前期拍摄 · 第0天' : (state.phase === 'final' ? '最终抉择 · 第17天' : '第' + state.day + '天 · 进行中');
+        document.getElementById('dayDisplay').textContent = state.phase === 'final' ? '第 17 天 · 终' : (state.day > 0 ? '第 ' + state.day + ' 天' : '第 0 天');
     }
 
-    // ---------- 绑定事件 ----------
-    document.getElementById('mainBtn').addEventListener('click', function() {
-        if (!state.started) {
-            resetGame();
-            // 重新初始化后再推进
-            state.started = true;
-            state.day = 1;
-            renderInitial();
-            advanceDay();
-        } else if (state.phase === 'initial') {
-            advanceDay();
-        } else if (state.phase === 'running' && !state.ended) {
-            advanceDay();
-        }
-    });
-
+    document.getElementById('registerBtn').addEventListener('click', registerPlayer);
+    document.getElementById('mainBtn').addEventListener('click', advanceDay);
     document.getElementById('resetBtn').addEventListener('click', function() {
         if (confirm('确定要重新开始吗？进度将丢失。')) {
-            resetGame();
-            document.getElementById('resetBtn').classList.add('hidden');
+            location.reload();
         }
     });
 
-    // ---------- 启动 ----------
-    resetGame();
+    // 初始化
+    updateUI();
 </script>
 </body>
 </html>
