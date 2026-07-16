@@ -1,328 +1,136 @@
 <!DOCTYPE html>
-<html lang="zh">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>🏠 密室逃脱</title>
-    <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-        }
-        body {
-            font-family: 'Segoe UI', sans-serif;
-            background: #1a1a2e;
-            min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-        }
-        .game-container {
-            background: #16213e;
-            padding: 30px;
-            border-radius: 20px;
-            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
-            max-width: 500px;
-            width: 100%;
-            text-align: center;
-            color: #eee;
-        }
-        h1 {
-            font-size: 28px;
-            margin-bottom: 10px;
-            color: #f5c842;
-        }
-        .scene {
-            background: #0f3460;
-            padding: 20px;
-            border-radius: 12px;
-            margin: 20px 0;
-            min-height: 120px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            font-size: 18px;
-            line-height: 1.6;
-        }
-        .scene .emoji-big {
-            font-size: 48px;
-            margin-bottom: 8px;
-        }
-        .items {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 12px;
-            justify-content: center;
-            margin: 16px 0;
-        }
-        .item-btn {
-            background: #1a3a5c;
-            border: none;
-            color: #fff;
-            padding: 12px 20px;
-            border-radius: 30px;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            box-shadow: 0 4px 0 #0a1a2e;
-        }
-        .item-btn:hover {
-            transform: translateY(-2px);
-            background: #254e77;
-        }
-        .item-btn:active {
-            transform: translateY(2px);
-            box-shadow: 0 2px 0 #0a1a2e;
-        }
-        .item-btn:disabled {
-            opacity: 0.4;
-            transform: none;
-            box-shadow: 0 4px 0 #0a1a2e;
-            cursor: not-allowed;
-        }
-        .inventory {
-            background: #0a1a2e;
-            padding: 12px;
-            border-radius: 30px;
-            margin: 16px 0;
-            font-size: 15px;
-            border: 1px dashed #f5c842;
-        }
-        .inventory span {
-            color: #f5c842;
-            font-weight: bold;
-        }
-        .input-area {
-            display: flex;
-            gap: 10px;
-            justify-content: center;
-            margin-top: 16px;
-            flex-wrap: wrap;
-        }
-        .input-area input {
-            padding: 10px 16px;
-            border-radius: 30px;
-            border: none;
-            width: 160px;
-            font-size: 16px;
-            text-align: center;
-            background: #0f3460;
-            color: #fff;
-            border: 1px solid #f5c842;
-        }
-        .input-area input::placeholder {
-            color: #888;
-        }
-        .input-area button {
-            background: #f5c842;
-            border: none;
-            padding: 10px 24px;
-            border-radius: 30px;
-            font-weight: bold;
-            font-size: 16px;
-            cursor: pointer;
-            transition: 0.2s;
-            color: #1a1a2e;
-        }
-        .input-area button:hover {
-            background: #ffd966;
-        }
-        .reset-btn {
-            margin-top: 20px;
-            background: #e94560;
-            border: none;
-            color: #fff;
-            padding: 10px 28px;
-            border-radius: 30px;
-            font-size: 15px;
-            cursor: pointer;
-            transition: 0.2s;
-        }
-        .reset-btn:hover {
-            background: #c73652;
-        }
-        .message {
-            margin-top: 14px;
-            font-size: 15px;
-            min-height: 24px;
-            color: #a8d8ea;
-        }
-    </style>
+<meta charset="UTF-8">
+<title>向日葵之影</title>
+<style>
+*{margin:0;padding:0;box-sizing:border-box;}
+body{background:#0a0a0a;color:#ddd;font-family:'Segoe UI',Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;}
+.box{background:#121212;padding:24px;border-radius:16px;max-width:500px;width:100%;border:1px solid #2a2a2a;}
+h1{color:#f5c842;text-align:center;font-size:22px;margin-bottom:4px;}
+.sub{font-size:12px;color:#888;text-align:center;margin-bottom:16px;border-bottom:1px solid #1a1a2a;padding-bottom:12px;}
+.scene{background:#0a0a18;padding:16px;border-radius:12px;border-left:3px solid #f5c842;margin:12px 0;line-height:1.8;font-size:15px;min-height:110px;}
+.scene .hl{color:#f5c842;}
+.scene .dr{color:#ff6b6b;}
+.scene .gray{color:#888;}
+.options{display:flex;flex-direction:column;gap:6px;margin:12px 0;}
+.options button{background:#1a1a2e;border:1px solid #2a3a5e;color:#eee;padding:10px 14px;border-radius:10px;text-align:left;font-size:14px;cursor:pointer;transition:0.2s;}
+.options button:hover{background:#252545;border-color:#f5c842;}
+.options button:disabled{opacity:0.3;cursor:not-allowed;}
+.msg{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #1a2a3a;font-size:13px;color:#a8d8ea;margin:12px 0;min-height:40px;}
+.msg .ok{color:#4caf50;font-weight:bold;}
+.btn-next{background:#f5c842;border:none;color:#1a1a2e;padding:12px;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer;width:100%;transition:0.2s;}
+.btn-next:hover{background:#ffd966;}
+.btn-next:disabled{opacity:0.3;cursor:not-allowed;}
+.btn-reset{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;padding:10px;border-radius:20px;font-size:13px;cursor:pointer;width:100%;margin-top:10px;transition:0.2s;}
+.btn-reset:hover{border-color:#ff6b6b;color:#ff6b6b;}
+.hidden{display:none;}
+.image-box{background:#0a0a14;border:1px dashed #2a3a5e;border-radius:12px;padding:12px;text-align:center;margin:12px 0;}
+.image-box img{max-width:100%;border-radius:8px;max-height:200px;}
+.image-box .cap{color:#888;font-size:11px;margin-top:4px;}
+.end-icon{text-align:center;font-size:44px;padding:12px 0 4px 0;}
+.end-title{text-align:center;font-size:20px;color:#f5c842;}
+.end-desc{text-align:center;font-size:14px;color:#aaa;padding:12px;line-height:1.8;}
+</style>
 </head>
 <body>
-<div class="game-container">
-    <h1>🔐 密室逃脱</h1>
-    <div class="scene" id="sceneDisplay">
-        <div class="emoji-big">📚</div>
-        <div>你在一间古老的书房里。<br>墙上挂着一幅画，桌上有一本书。</div>
-    </div>
-
-    <div class="items" id="actionButtons"></div>
-
-    <div class="inventory" id="inventoryDisplay">🎒 背包：<span>空</span></div>
-
-    <div class="input-area" id="passwordArea">
-        <input type="text" id="passwordInput" placeholder="输入密码" maxlength="10">
-        <button id="passwordBtn">🔑 解锁</button>
-    </div>
-
-    <div class="message" id="messageDisplay">💡 点击物品探索...</div>
-    <button class="reset-btn" id="resetBtn">🔄 重新开始</button>
+<div class="box">
+<h1>向日葵之影</h1>
+<div class="sub">第 <span id="chap">1</span> 章 · <span id="sname">审讯室</span></div>
+<div class="scene" id="scene"></div>
+<div id="imgBox" class="image-box hidden">
+<img id="imgShow" src="72776.jpeg" alt="物证">
+<div class="cap" id="imgCap">关键物证</div>
+</div>
+<div id="options" class="options"></div>
+<div class="msg" id="msg">点击选项推进剧情</div>
+<button class="btn-next" id="nextBtn" disabled>继续</button>
+<button class="btn-reset" id="resetBtn">重新开始</button>
 </div>
 
 <script>
-    const state = {
-        hasKey: false,
-        hasNote: false,
-        doorUnlocked: false,
-        bookRead: false,
-        paintingMoved: false,
-        gameOver: false,
-    };
+var S = [
+{ch:1,nm:'审讯室',tx:'审讯室只有一盏灯，照在画家脸上。<br><br>"季警官，我知道你在想什么。"<br>他把双手摊开："但你知道吗？<span class=dr>我坐在这里，不是因为被抓，是因为我想来。</span>"<br><br>他微笑："前三个审讯官都被我聊哭了。"',img:null,op:[{lb:'你是在测试我的心理承受力？',nx:1,cl:null},{lb:'你故意被抓，是为了传递某个信息。',nx:1,cl:'画家自首动机'},{lb:'你提到前三个审讯官，是在威胁我？',nx:1,cl:null},{lb:'你坐在这里，是因为你无处可去。',nx:1,cl:null}]},
+{ch:1,nm:'审讯室',tx:'你从档案袋里抽出一张照片，推到他面前。<br><br>"这张聊天记录截图，你认识吗？"<br><br>他的目光落在照片上，<span class=dr>瞳孔微微收缩</span>。<br><br>沉默。五秒钟的沉默。',img:'72776.jpeg',cap:'案发现场手机里的聊天记录',op:[{lb:'你认识向日葵。',nx:2,cl:'画家认识向日葵'},{lb:'你在犹豫要不要告诉我真相。',nx:2,cl:null},{lb:'你怕这张照片。',nx:2,cl:null},{lb:'这张照片是你故意留下的。',nx:2,cl:'照片是画家故意留的'}]},
+{ch:1,nm:'审讯室',tx:'他抬起头，眼神变了。<br><br>"你比他们聪明。"他说。<br><br>"<span class=hl>向日葵……是我妹妹。</span>"<br><br>他低下头："我做的所有事，都是为了保护她。"<br><br><span class=gray>你获得了关键线索：</span> <span class=hl>向日葵 = 画家的妹妹</span>',img:null,op:[],end:true,nc:2},
+{ch:2,nm:'档案室',tx:'你来到警局档案室，翻阅与"画家"相关的所有案件记录。<br><br>你发现一份被涂改过的档案——<br>上面写着：<span class=dr>"向日葵项目 · 已封存"</span><br><br>你注意到档案封面上有一个手写字母：<span class=hl>S</span>',img:null,op:[{lb:'S代表什么？向日葵的缩写？',nx:4,cl:'S-向日葵缩写'},{lb:'这份档案被人动过手脚。',nx:4,cl:'档案被篡改'},{lb:'我要找到原始档案。',nx:4,cl:null},{lb:'S可能是某个人的名字缩写。',nx:4,cl:null}]},
+{ch:2,nm:'档案室',tx:'你在档案柜底层发现一封匿名信。<br><br>信上写着：<br>"向日葵不是一个人，是一个代号。<br>真正的向日葵，藏在画里。"<br><br>没有署名。没有日期。',img:null,op:[{lb:'这封信是画家写的。',nx:5,cl:'匿名信-可能来自画家'},{lb:'有人在引导我的调查方向。',nx:5,cl:'被引导的调查'},{lb:'藏在画里……是指那幅失窃的画？',nx:5,cl:'画作是关键'},{lb:'这封信可能是陷阱。',nx:5,cl:null}]},
+{ch:2,nm:'档案室',tx:'你调出监控录像，发现案发当晚，<br>一个戴帽子的身影在画廊附近徘徊。<br><br>你放大画面——<br>他的口袋里露出一角<span class=hl>黄色布料</span>。',img:null,op:[],end:true,nc:3},
+{ch:3,nm:'咖啡馆',tx:'你根据线索找到一家叫"向日葵"的咖啡馆。<br><br>店员看到你进来，表情有些紧张。<br><br>"你是……来找人的吗？"她问。<br><br><span class=gray>你注意到她手腕上有一道旧伤疤。</span>',img:null,op:[{lb:'我听说这里和向日葵有关。',nx:7,cl:'咖啡馆与向日葵有关'},{lb:'你认识画家吗？',nx:7,cl:null},{lb:'这张照片里的聊天记录，你见过吗？',nx:7,cl:null},{lb:'你在害怕什么？',nx:7,cl:'店员在害怕'}]},
+{ch:3,nm:'咖啡馆',tx:'店员沉默了很久。<br><br>"那幅画……是画家最后的一幅作品。"<br>"画的是一个女孩，站在向日葵田里。"<br><br>她低声说："那个女孩，<span class=dr>是他死去的妹妹。</span>"',img:null,op:[{lb:'那幅画现在在哪里？',nx:8,cl:'最后一幅画的下落'},{lb:'他妹妹是怎么死的？',nx:8,cl:'妹妹死因'},{lb:'你和他是什么关系？',nx:8,cl:null},{lb:'画里藏着什么？',nx:8,cl:'画中藏有秘密'}]},
+{ch:3,nm:'咖啡馆',tx:'店员带你去咖啡馆后院。<br><br>墙上挂着一幅褪色的画——<br>画里，一个女孩站在向日葵田里，<br>手里拿着一封信。<br><br>你凑近看，信上写着：<span class=hl>"S.O.S."</span>',img:null,op:[],end:true,nc:4},
+{ch:4,nm:'废弃画廊',tx:'你来到那幅画所在的废弃画廊。<br><br>空气中弥漫着灰尘和松节油的气味。<br>墙上挂满了一幅幅画像——<br>全是同一个人：<span class=hl>向日葵田里的女孩</span>。<br><br>你数了数：<span class=dr>九幅画。</span>',img:null,op:[{lb:'九幅画……代表什么？',nx:10,cl:'九幅画-关键数字'},{lb:'画里的女孩就是向日葵。',nx:10,cl:'女孩=向日葵'},{lb:'我要拍下这些画。',nx:10,cl:null},{lb:'九可能代表某个日期。',nx:10,cl:'9可能是日期'}]},
+{ch:4,nm:'废弃画廊',tx:'你发现最后一幅画的背面有一行小字：<br><br>"向日葵不会低头，直到太阳下山。"<br><br>你突然意识到——<br>这句话和你的聊天记录截图里的一句话<span class=hl>一模一样</span>。',img:'72776.jpeg',cap:'聊天记录里的同一句话',op:[{lb:'这句话是暗号。',nx:11,cl:'暗号确认'},{lb:'聊天记录和画作有直接关联。',nx:11,cl:'画与聊天记录关联'},{lb:'画家在通过画作传递信息。',nx:11,cl:'画作传递信息'},{lb:'这句话是遗言。',nx:11,cl:null}]},
+{ch:4,nm:'废弃画廊',tx:'你听到身后传来脚步声。<br><br>你转身——<br>一个黑影站在门口。<br><br>"你不该来这里。"那个声音说。<br><br><span class=gray>你认出了这个声音：是画家。</span>',img:null,op:[],end:true,nc:5},
+{ch:5,nm:'最终审讯',tx:'你和画家在画廊里对峙。<br><br>"你妹妹的死，和那幅画有关。"你说。<br><br>他沉默了很久。<br><br>"她不是死了。"他说。<span class=dr>"她是被带走的。"</span>',img:null,op:[{lb:'被谁带走的？',nx:13,cl:'妹妹被带走'},{lb:'你一直在找她。',nx:13,cl:'画家在找妹妹'},{lb:'所以你和警方合作，是为了找到她。',nx:13,cl:'画家与警方合作'},{lb:'她是你唯一的亲人。',nx:13,cl:null}]},
+{ch:5,nm:'最终审讯',tx:'他抬起头，眼眶发红。<br><br>"我是为了找她，才做了那些事。"<br>"警方查不到她的下落——<span class=hl>但我能。</span>"<br><br>他递给你一张纸条，<br>上面写着：<span class=dr>"SUNFLOWER"</span>',img:null,op:[{lb:'SUNFLOWER是坐标。',nx:14,cl:'坐标线索'},{lb:'这是她最后留下的信息。',nx:14,cl:'妹妹的最后信息'},{lb:'你已经找到她了，对吗？',nx:14,cl:'画家已找到妹妹'},{lb:'SUNFLOWER是暗语。',nx:14,cl:'暗语'}]},
+{ch:5,nm:'最终审讯',tx:'他点了点头。<br><br>"我找到了她。"<br>"但她已经不记得我了。"<br><br>他闭上眼："这就是为什么我来自首。"<br>"我想让她知道……<span class=hl>我没有放弃过她。</span>"',img:null,op:[],end:true,isEnd:true}
+];
 
-    function updateUI() {
-        const scene = document.getElementById('sceneDisplay');
-        const inv = document.getElementById('inventoryDisplay');
-        const msg = document.getElementById('messageDisplay');
-        const btns = document.getElementById('actionButtons');
+var END = [
+{ti:'向日葵重逢',de:'你帮助画家找到了妹妹。她虽然失忆，但看到那幅画时，流泪了。画家决定自首，用余生弥补过失。',em:'🌅'},
+{ti:'未解之谜',de:'画家在审讯中突然沉默，拒绝再说话。你永远不知道向日葵是谁。案件不了了之。',em:'🌫️'},
+{ti:'真相大白',de:'你查出了画家背后的组织，揭开了向日葵计划的真相。画家被赦免部分罪行，但失去了自由。',em:'📜'},
+{ti:'永远的向日葵',de:'你发现向日葵并不是画家的妹妹，而是他自己。他一直在寻找自己。最终，他消失了。',em:'🌌'}
+];
 
-        let items = [];
-        if (state.hasKey) items.push('🔑 钥匙');
-        if (state.hasNote) items.push('📄 纸条');
-        inv.innerHTML = `🎒 背包：<span>${items.length ? items.join('、') : '空'}</span>`;
+var st={idx:0,clues:[]};
 
-        btns.innerHTML = '';
-        if (state.gameOver) {
-            scene.innerHTML = `<div class="emoji-big">🎉</div><div>你逃出去了！<br>🎊 恭喜通关！</div>`;
-            document.getElementById('passwordArea').style.display = 'none';
-            return;
-        }
+function render(){
+var s=S[st.idx]; if(!s)return;
+document.getElementById('chap').textContent=s.ch;
+document.getElementById('sname').textContent=s.nm;
+document.getElementById('scene').innerHTML=s.tx;
+var ib=document.getElementById('imgBox'), ish=document.getElementById('imgShow'), ic=document.getElementById('imgCap');
+if(s.img){ib.classList.remove('hidden');ish.src=s.img;ic.textContent=s.cap||'关键物证';}else{ib.classList.add('hidden');}
+var od=document.getElementById('options'); od.innerHTML=''; var nb=document.getElementById('nextBtn');
+if(s.op&&s.op.length>0){
+s.op.forEach(function(o,i){var b=document.createElement('button');b.textContent=o.lb;b.onclick=function(){pick(i);};od.appendChild(b);});
+nb.disabled=true; document.getElementById('msg').innerHTML='点击选项推进剧情';
+}else{
+if(s.isEnd){showEnd();return;}
+if(s.end){document.getElementById('msg').innerHTML='<span class=ok>章节完成！</span> 点击"继续"进入下一章';nb.disabled=false;nb.textContent='继续';nb.onclick=goNext;}else{nb.disabled=true;}
+}
+document.getElementById('clueCount').textContent=st.clues.length;
+}
 
-        let sceneHTML = '';
-        let btnArray = [];
+function pick(i){
+var s=S[st.idx], o=s.op[i]; if(!o)return;
+var bs=document.querySelectorAll('#options button'); bs.forEach(function(b){b.disabled=true;});
+if(o.cl){if(st.clues.indexOf(o.cl)===-1){st.clues.push(o.cl);document.getElementById('msg').innerHTML='<span class=ok>获得线索：'+o.cl+'</span>';}}
+if(o.nx!==undefined){st.idx=o.nx;setTimeout(function(){render();},400);}
+document.getElementById('clueCount').textContent=st.clues.length;
+}
 
-        if (!state.paintingMoved) {
-            sceneHTML = `<div class="emoji-big">🖼️</div><div>墙上有一幅落灰的油画，<br>似乎可以推开。</div>`;
-            btnArray.push({ label: '🖼️ 查看油画', action: 'painting' });
-        } else if (!state.bookRead) {
-            sceneHTML = `<div class="emoji-big">📖</div><div>书桌上放着一本旧书，<br>书页间好像夹着什么东西。</div>`;
-            btnArray.push({ label: '📖 翻阅书籍', action: 'book' });
-        } else if (!state.hasKey) {
-            sceneHTML = `<div class="emoji-big">🔍</div><div>你在书桌抽屉里<br>发现了一把生锈的钥匙。</div>`;
-            btnArray.push({ label: '🔑 拿走钥匙', action: 'key' });
-        } else if (!state.doorUnlocked) {
-            sceneHTML = `<div class="emoji-big">🚪</div><div>一扇厚重的木门，<br>上面有个密码锁（提示：纸条上的数字）</div>`;
-            btnArray.push({ label: '🔍 查看门锁', action: 'door' });
-        } else {
-            sceneHTML = `<div class="emoji-big">🚪</div><div>门已经打开了！<br>你大步走向自由！</div>`;
-            btnArray.push({ label: '🚶 走出去', action: 'exit' });
-        }
+function goNext(){
+var s=S[st.idx];
+if(s&&s.nc!==undefined){
+var ni=st.idx+1;
+while(ni<S.length&&S[ni].ch===s.ch){ni++;}
+if(ni<S.length){st.idx=ni;render();}else{showEnd();}
+}
+document.getElementById('nextBtn').disabled=true;
+}
 
-        scene.innerHTML = sceneHTML;
-        btnArray.forEach(b => {
-            const btn = document.createElement('button');
-            btn.className = 'item-btn';
-            btn.textContent = b.label;
-            btn.onclick = () => handleAction(b.action);
-            btns.appendChild(btn);
-        });
+function showEnd(){
+var c=st.clues.length, ei=c>=6?0:(c>=4?2:(c>=2?1:3)), e=END[ei];
+document.getElementById('scene').innerHTML='<div class=end-icon>'+e.em+'</div><div class=end-title>'+e.ti+'</div><div class=end-desc>'+e.de+'</div>';
+document.getElementById('options').innerHTML='';
+document.getElementById('nextBtn').disabled=true; document.getElementById('nextBtn').textContent='已完结';
+document.getElementById('msg').innerHTML='<span class=ok>游戏结束</span> 感谢你完成"向日葵之影"';
+document.getElementById('imgBox').classList.add('hidden');
+document.getElementById('chap').textContent='终';
+document.getElementById('sname').textContent='结局';
+}
 
-        const pwdArea = document.getElementById('passwordArea');
-        if (!state.gameOver && !state.doorUnlocked && state.hasKey && state.hasNote) {
-            pwdArea.style.display = 'flex';
-        } else {
-            pwdArea.style.display = 'none';
-        }
-    }
-
-    function handleAction(action) {
-        if (state.gameOver) return;
-        const msg = document.getElementById('messageDisplay');
-
-        switch (action) {
-            case 'painting':
-                if (!state.paintingMoved) {
-                    state.paintingMoved = true;
-                    msg.textContent = '🖼️ 你推开油画，发现后面藏着一张纸条！';
-                    state.hasNote = true;
-                }
-                break;
-            case 'book':
-                if (!state.bookRead && state.paintingMoved) {
-                    state.bookRead = true;
-                    msg.textContent = '📖 书中夹着一张泛黄的纸条，上面写着："密码是 1984"';
-                } else if (!state.paintingMoved) {
-                    msg.textContent = '📖 书被锁住了，得先找找别的线索...';
-                } else {
-                    msg.textContent = '📖 你已经翻过这本书了。';
-                }
-                break;
-            case 'key':
-                if (!state.hasKey && state.bookRead) {
-                    state.hasKey = true;
-                    msg.textContent = '🔑 你拿起了钥匙，它看起来很古老。';
-                } else if (!state.bookRead) {
-                    msg.textContent = '🔍 抽屉是锁着的，需要找到什么才能打开它？';
-                } else {
-                    msg.textContent = '🔑 钥匙已经在你手里了。';
-                }
-                break;
-            case 'door':
-                if (state.hasKey && state.hasNote) {
-                    msg.textContent = '🔐 门锁需要密码，输入纸条上的数字吧。';
-                } else {
-                    msg.textContent = '🚪 门锁着，你还需要更多线索。';
-                }
-                break;
-            case 'exit':
-                if (state.doorUnlocked) {
-                    state.gameOver = true;
-                    msg.textContent = '🎉 你成功逃出了密室！';
-                }
-                break;
-            default:
-                break;
-        }
-        updateUI();
-    }
-
-    document.getElementById('passwordBtn').addEventListener('click', function() {
-        if (state.gameOver) return;
-        const input = document.getElementById('passwordInput');
-        const msg = document.getElementById('messageDisplay');
-        const pwd = input.value.trim();
-
-        if (pwd === '1984') {
-            state.doorUnlocked = true;
-            msg.textContent = '✅ 密码正确！门锁发出"咔嗒"一声！';
-            input.value = '';
-            updateUI();
-        } else {
-            msg.textContent = '❌ 密码错误，再想想纸条上的数字...';
-            input.value = '';
-        }
-    });
-
-    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
-        if (e.key === 'Enter') {
-            document.getElementById('passwordBtn').click();
-        }
-    });
-
-    document.getElementById('resetBtn').addEventListener('click', function() {
-        state.hasKey = false;
-        state.hasNote = false;
-        state.doorUnlocked = false;
-        state.bookRead = false;
-        state.paintingMoved = false;
-        state.gameOver = false;
-        document.getElementById('passwordInput').value = '';
-        document.getElementById('messageDisplay').textContent = '🔄 游戏已重置，重新开始！';
-        updateUI();
-    });
-
-    updateUI();
+function reset(){
+st.idx=0;st.clues=[];
+document.getElementById('nextBtn').textContent='继续';
+document.getElementById('nextBtn').onclick=null;
+render();
+}
+document.getElementById('resetBtn').onclick=reset;
+render();
 </script>
 </body>
 </html>
