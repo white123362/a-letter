@@ -27,7 +27,6 @@
         .chat-msg.npc{background:#1a2a2a;color:#ddd;text-align:left;border-bottom-left-radius:4px;}
         .chat-msg.npc .name{color:#f5c842;font-weight:bold;}
         .chat-msg.system{background:#1a1a1a;color:#888;text-align:center;font-style:italic;max-width:100%;font-size:13px;}
-        .chat-msg.ai{background:#0a1a2a;color:#4fc3f7;text-align:left;border-bottom-left-radius:4px;font-style:italic;}
         .input-row{display:flex;gap:8px;margin:8px 0;}
         .input-row input{flex:1;padding:12px 14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:15px;}
         .input-row input:focus{outline:none;border-color:#f5c842;}
@@ -54,25 +53,11 @@
         .modal-box .modal-btn:hover{background:#ffd966;}
         .modal-box.danger .modal-btn{background:#ff0000;color:#fff;}
         .modal-box.danger .modal-btn:hover{background:#cc0000;}
-        .modal-box .modal-choice{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
-        .modal-box .modal-choice button{background:#0a0a18;border:1px solid #2a3a5e;color:#eee;padding:12px 16px;border-radius:10px;font-size:14px;text-align:left;cursor:pointer;transition:0.2s;}
-        .modal-box .modal-choice button:hover{background:#252545;border-color:#f5c842;}
-        .modal-box .modal-choice button.danger{border-color:#6a2a2a;}
-        .modal-box .modal-choice button.danger:hover{background:#2a0a0a;border-color:#ff0000;}
-        .modal-box .modal-choice button.love{border-color:#2a5a6a;}
-        .modal-box .modal-choice button.love:hover{background:#0a2a3a;border-color:#4fc3f7;}
         .register-area{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
         .register-area input,.register-area select{padding:12px 14px;border-radius:10px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:15px;width:100%;}
         .register-area input:focus,.register-area select:focus{outline:none;border-color:#f5c842;}
         .register-area .row{display:flex;gap:10px;}
         .register-area .row input,.register-area .row select{flex:1;}
-        .key-input-area{background:#0a0a18;border:1px solid #2a3a5e;border-radius:12px;padding:16px;margin:10px 0;}
-        .key-input-area label{color:#888;font-size:13px;display:block;margin-bottom:6px;}
-        .key-input-area input{width:100%;padding:12px;border-radius:8px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:14px;font-family:monospace;}
-        .key-input-area input:focus{outline:none;border-color:#f5c842;}
-        .key-input-area .status{font-size:12px;margin-top:6px;}
-        .key-input-area .status.ok{color:#4caf50;}
-        .key-input-area .status.fail{color:#ff6b6b;}
         .back-link{display:block;text-align:center;color:#888;font-size:13px;margin-top:12px;text-decoration:none;border-top:1px solid #1a1a2a;padding-top:12px;}
         .back-link:hover{color:#f5c842;}
         .note{color:#555;font-size:11px;text-align:center;margin-top:8px;}
@@ -85,8 +70,6 @@
         .char-card .detail{color:#888;font-size:10px;}
         .char-card.player{border-color:#f5c842;background:#1a1a2e;}
         .char-card.dead{opacity:0.4;border-color:#6a2a2a;}
-        .loading-dots::after{content:'';animation:dots 1.2s steps(4) infinite;}
-        @keyframes dots{0%{content:'';}25%{content:'.';}50%{content:'..';}75%{content:'...';}100%{content:'';}}
         @keyframes fadeIn{0%{opacity:0;}100%{opacity:1;}}
         @keyframes slideUp{0%{transform:translateY(40px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
         @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-12px);}40%{transform:translateX(12px);}60%{transform:translateX(-8px);}80%{transform:translateX(8px);}}
@@ -98,14 +81,7 @@
     <h1>🌸 恋综模拟器 <span class="ai-badge">AI</span></h1>
     <div class="sub">18天 · 心动 · 争夺 · 背叛</div>
 
-    <div id="keyArea" class="key-input-area">
-        <label>🔑 输入你的 DeepSeek API Key</label>
-        <input type="password" id="apiKeyInput" placeholder="sk-xxxxxxxxxxxxxxxx">
-        <button class="btn" id="saveKeyBtn" style="margin-top:8px;padding:10px;">✅ 保存并开始</button>
-        <div class="status" id="keyStatus">💡 去 platform.deepseek.com 获取</div>
-    </div>
-
-    <div id="registerArea" class="hidden">
+    <div id="registerArea">
         <div style="color:#f5c842;font-size:18px;text-align:center;margin-bottom:12px;">📝 注册你的角色</div>
         <div class="register-area">
             <input type="text" id="playerName" placeholder="你的名字">
@@ -150,10 +126,9 @@
 </div>
 
 <script>
-var API_KEY = '';
+var API_KEY = 'sk-63de969541fa4461867119dd72aba997';
 var API_URL = 'https://api.deepseek.com/v1/chat/completions';
-
-var FEMALE_NAMES = ['富婆','大小姐','老板娘','时灵','4b'];
+    var FEMALE_NAMES = ['富婆','大小姐','老板娘','时灵','4b'];
 var MALE_NAMES = ['蛙蛙','青蛙','吉力','肉片','挽辰'];
 var FEMALE_PERSONALITIES = ['表面高冷，内心渴望被爱','娇生惯养但极度聪明','掌控欲强善于算计','神秘冷淡藏有秘密','毒舌但重情义'];
 var MALE_PERSONALITIES = ['玩世不恭内心深情','温吞但极端忠诚','精明商人利益至上','暴躁但重感情','温柔极度敏感'];
@@ -310,7 +285,6 @@ function addChat(who, text, type){
     div.className='chat-msg '+type;
     var name=type==='player'?'你':(type==='system'?'系统':who);
     if(type==='npc'){div.innerHTML='<span class="name">'+who+'</span>：'+text;}
-    else if(type==='ai'){div.innerHTML='<span class="name">🤖 AI</span>：'+text;}
     else{div.innerHTML=name+'：'+text;}
     area.appendChild(div);
     area.scrollTop=area.scrollHeight;
@@ -374,20 +348,7 @@ function showModal(title,body,btnText,isDanger,cb){
     document.getElementById('modalBtn').onclick=function(){ov.classList.add('hidden');if(cb)cb();};
     if(isDanger){box.style.animation='none';setTimeout(function(){box.style.animation='slideUp 0.4s ease, shake 0.5s ease';},10);}
 }
-    document.getElementById('saveKeyBtn').addEventListener('click',function(){
-    var key=document.getElementById('apiKeyInput').value.trim();
-    if(!key){document.getElementById('keyStatus').textContent='❌ 请输入 API Key';document.getElementById('keyStatus').className='status fail';return;}
-    if(!key.startsWith('sk-')){document.getElementById('keyStatus').textContent='❌ API Key 格式不对，应该以 sk- 开头';document.getElementById('keyStatus').className='status fail';return;}
-    API_KEY=key;
-    try{localStorage.setItem('deepseek_api_key',key);}catch(e){}
-    document.getElementById('keyStatus').textContent='✅ API Key 已保存！';document.getElementById('keyStatus').className='status ok';
-    document.getElementById('keyArea').classList.add('hidden');
-    document.getElementById('registerArea').classList.remove('hidden');
-});
-
-try{var savedKey=localStorage.getItem('deepseek_api_key');if(savedKey){document.getElementById('apiKeyInput').value=savedKey;document.getElementById('saveKeyBtn').click();}}catch(e){}
-
-document.getElementById('registerBtn').addEventListener('click',function(){
+    document.getElementById('registerBtn').addEventListener('click',function(){
     var name=document.getElementById('playerName').value.trim();
     var gender=document.getElementById('playerGender').value;
     var hobby=document.getElementById('playerHobby').value.trim()||'未知';
@@ -445,4 +406,53 @@ document.getElementById('mainBtn').addEventListener('click',function(){
             var reason=pickOne(DEATH_REASONS);
             addChat('系统','💀 '+victim.name+' '+reason,'system');
             showModal('💀 悲剧发生',victim.name+' 不幸离世。<br><br>原因：'+reason+'<br><br>其他嘉宾陷入了沉默。但生活还要继续。','继续',true);
-            state.characters
+            state.characters.forEach(function(c){if(c.alive&&!c.isPlayer){c.love=Math.max(0,c.love-rand(0,5));}});
+        }
+    }
+
+    var npcs=state.characters.filter(function(c){return c.alive&&!c.isPlayer;});
+    if(npcs.length>1 && Math.random()<0.3){
+        var npc1=npcs[rand(0,npcs.length-1)], npc2=npcs[rand(0,npcs.length-1)];
+        if(npc1!==npc2){
+            var msgs=['今天天气真好。','你觉得我们会成吗？','我有点想家了。','你看起来不错。','能聊聊吗？'];
+            addChat(npc1.name,'「'+pickOne(msgs)+'」→ '+npc2.name,'npc');
+            if(Math.random()<0.3){npc1.love=Math.min(100,npc1.love+rand(1,3));}
+        }
+    }
+
+    renderAll();
+    document.getElementById('msgInput').focus();
+});
+
+function triggerFinal(){
+    state.phase='final';
+    document.getElementById('mainBtn').disabled=true;
+    document.getElementById('mainBtn').textContent='🏁 已完结';
+    var totalLove=0,count=0;
+    state.characters.forEach(function(c){if(c.alive){totalLove+=c.love;count++;}});
+    var avgLove=count>0?Math.round(totalLove/count):50;
+    var cp=getPlayerCouple();
+    var npc=cp?cp.a.isPlayer?cp.b:cp.a:null;
+    var npcLove=npc?npc.love:50;
+    var result='';
+    if(npcLove>=70 && state.love>=60) result='🌅 幸福结局：你们成为了最令人羡慕的一对。';
+    else if(npcLove>=50 && state.love>=40) result='🌤️ 普通结局：你们选择了做朋友。';
+    else if(npcLove>=30) result='🌧️ 遗憾结局：你们各自离开，再也没有见过。';
+    else result='💔 悲剧结局：你被伤透了心，从此不再相信爱情。';
+    var html='<div style="text-align:center;font-size:18px;color:#f5c842;margin-bottom:12px;">💌 第17天 · 最终抉择</div>';
+    html+='<div class="pair-line">你的CP：'+npc.name+'（好感度 '+npcLove+'%）</div>';
+    html+='<div class="pair-line">你的综合好感：'+state.love+'%</div>';
+    html+='<div class="pair-line">存活嘉宾：'+state.characters.filter(function(c){return c.alive;}).length+' 人</div>';
+    html+='<div style="margin-top:16px;font-size:20px;color:#f5c842;">'+result+'</div>';
+    showModal('🎬 旅程结束',html,'重新开始',false,function(){location.reload();});
+    renderAll();
+}
+
+document.getElementById('resetBtn').addEventListener('click',function(){
+    if(confirm('确定重新开始吗？')){location.reload();}
+});
+
+renderAll();
+</script>
+</body>
+</html>
