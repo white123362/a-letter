@@ -1,228 +1,840 @@
-import random
-import time
-from dataclasses import dataclass, field
-from typing import List, Dict, Optional
+<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>恋综模拟器 · 18天</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            background: #0a0a0a;
+            color: #ddd;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            padding: 12px;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+        }
+        .box {
+            max-width: 500px;
+            width: 100%;
+            background: #121212;
+            border-radius: 16px;
+            padding: 20px;
+            border: 1px solid #2a2a2a;
+            position: relative;
+        }
+        h1 {
+            color: #f5c842;
+            text-align: center;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        .sub {
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            border-bottom: 1px solid #1a1a2a;
+            padding-bottom: 12px;
+            margin-bottom: 12px;
+        }
+        .stats {
+            display: flex;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 12px;
+        }
+        .stat-box {
+            flex: 1;
+            text-align: center;
+            padding: 6px 4px;
+            border-radius: 8px;
+            font-size: 12px;
+            background: #0a0a18;
+            border: 1px solid #1a2a3a;
+        }
+        .stat-box .num {
+            color: #f5c842;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .day-display {
+            text-align: center;
+            font-size: 28px;
+            color: #f5c842;
+            font-weight: bold;
+            padding: 6px 0;
+        }
+        .phase-tag {
+            text-align: center;
+            font-size: 14px;
+            color: #888;
+            margin-bottom: 8px;
+        }
+        .scene {
+            background: #0a0a18;
+            padding: 14px;
+            border-radius: 12px;
+            border-left: 3px solid #f5c842;
+            margin: 10px 0;
+            font-size: 14px;
+            line-height: 1.8;
+            min-height: 80px;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+        .scene .hl {
+            color: #f5c842;
+        }
+        .scene .dr {
+            color: #ff6b6b;
+        }
+        .scene .gray {
+            color: #888;
+        }
+        .scene .event {
+            color: #4fc3f7;
+        }
+        .couple-list {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            margin: 10px 0;
+        }
+        .couple-item {
+            background: #0a0a18;
+            padding: 10px 12px;
+            border-radius: 10px;
+            border: 1px solid #1a2a3a;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 14px;
+        }
+        .couple-item .names {
+            font-weight: bold;
+            color: #f5c842;
+        }
+        .couple-item .status {
+            font-size: 12px;
+            padding: 2px 10px;
+            border-radius: 12px;
+            background: #1a1a2e;
+        }
+        .status.yes {
+            color: #4caf50;
+            border: 1px solid #4caf50;
+        }
+        .status.no {
+            color: #ff6b6b;
+            border: 1px solid #ff6b6b;
+        }
+        .status.unsure {
+            color: #f5c842;
+            border: 1px solid #f5c842;
+        }
+        .mood-row {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin: 6px 0;
+        }
+        .mood-tag {
+            background: #0a0a18;
+            padding: 4px 12px;
+            border-radius: 16px;
+            font-size: 13px;
+            border: 1px solid #1a2a3a;
+        }
+        .mood-tag .emoji {
+            font-size: 18px;
+        }
+        .btn {
+            background: #f5c842;
+            border: none;
+            color: #1a1a2e;
+            padding: 14px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            width: 100%;
+            transition: 0.2s;
+            margin-top: 8px;
+        }
+        .btn:hover {
+            background: #ffd966;
+        }
+        .btn:disabled {
+            opacity: 0.3;
+            cursor: not-allowed;
+        }
+        .btn-secondary {
+            background: #1a1a2e;
+            border: 1px solid #2a2a2a;
+            color: #888;
+            margin-top: 6px;
+        }
+        .btn-secondary:hover {
+            border-color: #f5c842;
+            color: #f5c842;
+        }
+        .btn-danger {
+            background: #3a0a0a;
+            border: 1px solid #6a2a2a;
+            color: #ff6b6b;
+        }
+        .btn-danger:hover {
+            border-color: #ff0000;
+            color: #ff0000;
+        }
+        .hidden {
+            display: none;
+        }
+        .final-result {
+            background: #0a0a18;
+            padding: 16px;
+            border-radius: 12px;
+            border: 2px solid #f5c842;
+            margin: 10px 0;
+        }
+        .final-result .title {
+            text-align: center;
+            font-size: 20px;
+            color: #f5c842;
+            margin-bottom: 8px;
+        }
+        .final-result .pair {
+            display: flex;
+            justify-content: space-between;
+            padding: 6px 0;
+            border-bottom: 1px solid #1a2a3a;
+            font-size: 14px;
+        }
+        .final-result .pair .decide-yes {
+            color: #4caf50;
+        }
+        .final-result .pair .decide-no {
+            color: #ff6b6b;
+        }
+        .summary-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 8px 0;
+        }
+        .summary-item {
+            background: #0a0a18;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #1a2a3a;
+            font-size: 12px;
+            text-align: center;
+        }
+        .summary-item .label {
+            color: #888;
+        }
+        .summary-item .value {
+            color: #f5c842;
+            font-weight: bold;
+            font-size: 16px;
+        }
+        .scroll-box {
+            max-height: 300px;
+            overflow-y: auto;
+        }
+        .death-notice {
+            background: #1a0000;
+            border: 2px solid #ff0000;
+            border-radius: 12px;
+            padding: 16px;
+            text-align: center;
+            margin: 10px 0;
+        }
+        .death-notice .icon {
+            font-size: 40px;
+        }
+        .death-notice .msg {
+            color: #ff6b6b;
+            font-size: 16px;
+            margin-top: 4px;
+        }
+        .back-link {
+            display: block;
+            text-align: center;
+            color: #888;
+            font-size: 13px;
+            margin-top: 12px;
+            text-decoration: none;
+            border-top: 1px solid #1a1a2a;
+            padding-top: 12px;
+        }
+        .back-link:hover {
+            color: #f5c842;
+        }
+        .note {
+            color: #555;
+            font-size: 11px;
+            text-align: center;
+            margin-top: 8px;
+        }
+        .char-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            margin: 6px 0;
+        }
+        .char-card {
+            background: #0a0a18;
+            padding: 8px;
+            border-radius: 8px;
+            border: 1px solid #1a2a3a;
+            font-size: 12px;
+            text-align: center;
+        }
+        .char-card .name {
+            color: #f5c842;
+            font-weight: bold;
+        }
+        .char-card .detail {
+            color: #888;
+            font-size: 11px;
+        }
+        .interview-box {
+            background: #0a0a18;
+            padding: 10px 14px;
+            border-radius: 10px;
+            border-left: 3px solid #4fc3f7;
+            margin: 6px 0;
+            font-size: 14px;
+            color: #a8d8ea;
+        }
+        .interview-box .speaker {
+            color: #f5c842;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+<div class="box" id="app">
+    <h1>🌸 恋综模拟器</h1>
+    <div class="sub">18天 · 心动与抉择</div>
 
-# ---------- 数据模型 ----------
-@dataclass
-class Character:
-    name: str
-    age: int
-    gender: str  # "男" / "女"
-    personality: str
-    occupation: str
-    relationship_status: str = "已分手"  # 已婚 / 已分手 / 分居中
-    purpose: str = "复合"                # 复合 / 告别 / 寻找答案
-    issues: str = ""
-    partner: Optional['Character'] = None
-    affection: Dict[str, int] = field(default_factory=dict)  # 对其他人好感度
-    is_alive: bool = True
+    <div class="stats">
+        <div class="stat-box">📅 第 <span class="num" id="dayNum">0</span> 天</div>
+        <div class="stat-box">💑 <span class="num" id="coupleCount">5</span> 对</div>
+        <div class="stat-box">💀 <span class="num" id="deathCount">0</span></div>
+    </div>
 
-@dataclass
-class Couple:
-    char_a: Character
-    char_b: Character
+    <div id="phaseDisplay" class="phase-tag">前期拍摄 · 第0天</div>
+    <div class="day-display" id="dayDisplay">第 0 天</div>
 
-    def __post_init__(self):
-        self.char_a.partner = self.char_b
-        self.char_b.partner = self.char_a
-        self.char_a.affection[self.char_b.name] = 50
-        self.char_b.affection[self.char_a.name] = 50
+    <div class="scene" id="sceneDisplay">
+        点击下方按钮开始旅程。
+    </div>
 
-# ---------- 全局状态 ----------
-class GameState:
-    def __init__(self, characters: List[Character], couples: List[Couple]):
-        self.characters = characters
-        self.couples = couples
-        self.day = 0
-        self.will_cards: Dict[str, List[str]] = {c.name: [] for c in characters}
-        self.mood_board: Dict[str, List[str]] = {c.name: [] for c in characters}
-        self.ended = False
-        self.final_choices: Dict[str, bool] = {}
+    <!-- 角色列表 -->
+    <div id="charList" class="char-grid"></div>
 
-    def advance_day(self):
-        self.day += 1
+    <!-- CP列表 -->
+    <div id="coupleList" class="couple-list"></div>
 
-    def record_will(self, name: str, choice: str):
-        if name in self.will_cards:
-            self.will_cards[name].append(choice)
+    <!-- 心情 -->
+    <div id="moodDisplay" class="mood-row"></div>
 
-    def record_mood(self, name: str, mood: str):
-        if name in self.mood_board:
-            self.mood_board[name].append(mood)
+    <!-- 采访 -->
+    <div id="interviewDisplay"></div>
 
-    def get_mood_summary(self) -> Dict[str, int]:
-        summary = {}
-        for name, moods in self.mood_board.items():
-            if moods:
-                summary[name] = moods[-1]  # 只显示最新心情
-        return summary
+    <!-- 最终结果 -->
+    <div id="finalResult" class="final-result hidden"></div>
 
-# ---------- 数据生成 ----------
-def create_default_characters():
-    # 女方角色（沿用你的设定）
-    females = [
-        Character("望舒", 25, "女", "表面温柔，内心阴暗", "游戏博主", "已分手", "复合"),
-        Character("梦汝", 26, "女", "外表柔弱，控制欲极强", "舞者", "已分手", "告别"),
-        Character("思瑶", 25, "女", "清纯人设，内心阴狠", "歌手", "已分手", "复合"),
-        Character("郁瑾", 24, "女", "仁心表象，私心极重", "外科医生", "已分手", "复合"),
-        Character("桃子", 24, "女", "温文尔雅，心胸狭隘", "声乐老师", "已分手", "复合"),
-    ]
-    # 男方角色（随机生成 5 位）
-    male_names = ["紫苑", "姜赫", "陆屿", "周野", "谢衍"]
-    personalities = ["沉默", "急躁", "温柔但懦弱", "精明", "自负"]
-    occupations = ["CEO", "摄影师", "律师", "自由职业", "设计师"]
-    males = []
-    for i, name in enumerate(male_names):
-        males.append(Character(
-            name=name,
-            age=random.randint(24, 30),
-            gender="男",
-            personality=personalities[i % len(personalities)],
-            occupation=occupations[i % len(occupations)],
-            relationship_status="已分手",
-            purpose=random.choice(["复合", "告别", "寻找答案"]),
-            issues="性格不合 / 沟通问题 / 前任介入" if i > 0 else "发现自己不适合谈恋爱"
-        ))
-    return females, males
+    <!-- 死亡通知 -->
+    <div id="deathNotice" class="death-notice hidden">
+        <div class="icon">💀</div>
+        <div class="msg" id="deathMsg"></div>
+    </div>
 
-def pair_couples(females: List[Character], males: List[Character]) -> List[Couple]:
-    random.shuffle(males)  # 随机配对
-    couples = []
-    for f, m in zip(females, males):
-        # 给双方设置性格标签，方便剧情生成
-        f.issues = f"{m.name} 太闷了，不够懂我" if random.random() > 0.5 else "对未来规划不一致"
-        m.issues = f"{f.name} 控制欲太强" if random.random() > 0.5 else "经常吵架，累了"
-        couples.append(Couple(f, m))
-    return couples
+    <!-- 按钮 -->
+    <button class="btn" id="mainBtn">▶ 开始旅程</button>
+    <button class="btn btn-secondary hidden" id="resetBtn">🔄 重新开始</button>
 
-# ---------- 每日流程 ----------
-def day_loop(state: GameState):
-    print(f"\n{'='*50}")
-    print(f"第 {state.day} 天")
-    print(f"{'='*50}")
+    <a href="https://white123362.github.io/a-letter/" class="back-link">← 返回密室推理</a>
+    <div class="note">💡 点击"新的一天"推进剧情 · 第17天最终抉择</div>
+</div>
 
-    # 显示当前CP
-    print("\n【当前配对】")
-    for c in state.couples:
-        print(f"  {c.char_a.name} ♥ {c.char_b.name}")
+<script>
+    // ============================================================
+    //  恋综模拟器 · 完整逻辑
+    // ============================================================
 
-    # 意愿卡填写（模拟每个角色）
-    print("\n【意愿卡填写】")
-    for char in state.characters:
-        choice = random.choice(["是", "否", "不确定"])
-        state.record_will(char.name, choice)
-        print(f"  {char.name}：{choice}")
+    // ---------- 角色数据 ----------
+    var femaleNames = ['望舒', '梦汝', '思瑶', '郁瑾', '桃子'];
+    var maleNames = ['紫苑', '姜赫', '陆屿', '周野', '谢衍'];
+    var personalities = ['表面温柔，内心阴暗', '外表柔弱，控制欲极强', '清纯人设，内心阴狠', '仁心表象，私心极重', '温文尔雅，心胸狭隘'];
+    var malePersonalities = ['沉默寡言，内心细腻', '急躁但重情义', '温柔但懦弱', '精明算计', '自负且敏感'];
+    var occupations = ['游戏博主', '舞者', '歌手', '外科医生', '声乐老师'];
+    var maleOccupations = ['CEO', '摄影师', '律师', '自由职业者', '设计师'];
+    var moods = ['😊', '😐', '😔', '😡', '😢'];
 
-    # 心情晴雨表
-    print("\n【心情晴雨表】")
-    moods = ["😊", "😐", "😔", "😡", "😢"]
-    for char in state.characters:
-        mood = random.choice(moods)
-        state.record_mood(char.name, mood)
-        print(f"  {char.name}：{mood}")
+    var events = [
+        '你们在营地散步时，遇到了前任。',
+        '有人酒后吐真言，爆出了旧事。',
+        '下雨了，你和她共撑一把伞。',
+        '节目组安排了任务：互换身份演戏。',
+        '其中一位嘉宾情绪崩溃，当场离场。',
+        '有人在房车里发现了一封旧情书。',
+        '你收到了一条匿名消息。',
+        '篝火晚会上，有人表白了。',
+        '节目组安排了一次秘密约会。'
+    ];
 
-    # 随机事件（模拟剧情推进）
-    trigger_random_event(state)
+    var interviewQuestions = [
+        '今天有什么想对对方说的？',
+        '你觉得这段关系还有救吗？',
+        '你后悔来参加这个节目吗？',
+        '如果有机会重新选择，你还会选TA吗？',
+        '你觉得自己在这段关系里做得对吗？'
+    ];
 
-    # 采访环节
-    print("\n【采访】")
-    for char in random.sample(state.characters, min(3, len(state.characters))):
-        print(f"  Q：{char.name}，今天有什么想对对方说的？")
-        print(f"  A：……（{char.name} 沉默了片刻，没有回答）")
+    // ---------- 状态 ----------
+    var state = {
+        day: 0,
+        phase: 'initial', // initial | running | final | ended
+        characters: [],
+        couples: [],
+        deaths: 0,
+        willCards: {},
+        moodBoard: {},
+        finalChoices: {},
+        ended: false,
+        deathTriggered: false,
+        dayLog: [],
+        started: false
+    };
 
-    # 检查死亡/退出条件
-    check_game_over(state)
+    // ---------- 初始化角色 ----------
+    function initCharacters() {
+        var chars = [];
+        var fCount = femaleNames.length;
+        var mCount = maleNames.length;
+        var shuffledMales = maleNames.slice().sort(function() { return Math.random() - 0.5; });
 
-def trigger_random_event(state: GameState):
-    events = [
-        "你们在营地散步时，遇到了前任。",
-        "有人酒后吐真言，爆出了旧事。",
-        "下雨了，你和她共撑一把伞。",
-        "节目组安排了任务：互换身份演戏。",
-        "其中一位嘉宾情绪崩溃，当场离场。",
-        "有人在房车里发现了一封旧情书。",
-        "你收到了一条匿名消息。",
-    ]
-    print(f"\n【随机事件】{random.choice(events)}")
+        for (var i = 0; i < fCount; i++) {
+            var mName = shuffledMales[i % mCount];
+            chars.push({
+                name: femaleNames[i],
+                age: 24 + Math.floor(Math.random() * 4),
+                gender: '女',
+                personality: personalities[i % personalities.length],
+                occupation: occupations[i % occupations.length],
+                partner: mName,
+                issues: Math.random() > 0.5 ? mName + ' 太闷了，不够懂我' : '对未来规划不一致',
+                isAlive: true
+            });
+        }
 
-def check_game_over(state: GameState):
-    # 模拟死亡触发（随机概率）
-    if random.random() < 0.05 and state.day > 10:
-        victim = random.choice(state.characters)
-        victim.is_alive = False
-        print(f"\n⚠️ 突发悲剧：{victim.name} 因意外/冲突死亡。")
-        state.ended = True
+        // 重新打乱男性配对
+        var shuffledPairs = maleNames.slice().sort(function() { return Math.random() - 0.5; });
+        for (var j = 0; j < fCount; j++) {
+            var m = shuffledPairs[j % shuffledPairs.length];
+            // 找到已有的男性角色（避免重复）
+            var exists = false;
+            for (var k = 0; k < chars.length; k++) {
+                if (chars[k].partner === m) exists = true;
+            }
+            if (!exists) {
+                chars[j].partner = m;
+            }
+        }
 
-# ---------- 抉择日 ----------
-def final_choice_day(state: GameState):
-    print("\n" + "="*50)
-    print("第17天 · 最终抉择")
-    print("="*50)
+        // 添加男性角色
+        var usedMales = [];
+        for (var l = 0; l < chars.length; l++) {
+            usedMales.push(chars[l].partner);
+        }
+        var remainingMales = maleNames.filter(function(n) { return usedMales.indexOf(n) === -1; });
+        for (var p = 0; p < remainingMales.length; p++) {
+            var idx = p % chars.length;
+            chars[idx].partner = remainingMales[p];
+        }
 
-    for couple in state.couples:
-        a = couple.char_a
-        b = couple.char_b
-        # 模拟各自决定（根据好感度+随机）
-        a_decide = random.choice([True, False])
-        b_decide = random.choice([True, False])
-        state.final_choices[a.name] = a_decide
-        state.final_choices[b.name] = b_decide
+        // 重建男性列表
+        var maleList = [];
+        for (var q = 0; q < chars.length; q++) {
+            var mn = chars[q].partner;
+            // 检查是否已存在
+            var dup = false;
+            for (var r = 0; r < maleList.length; r++) {
+                if (maleList[r].name === mn) dup = true;
+            }
+            if (!dup) {
+                maleList.push({
+                    name: mn,
+                    age: 25 + Math.floor(Math.random() * 5),
+                    gender: '男',
+                    personality: malePersonalities[q % malePersonalities.length],
+                    occupation: maleOccupations[q % maleOccupations.length],
+                    partner: chars[q].name,
+                    issues: chars[q].name + ' 控制欲太强' + (Math.random() > 0.5 ? '，经常吵架' : '，沟通困难'),
+                    isAlive: true
+                });
+            }
+        }
 
-        print(f"\n【{a.name} & {b.name}】")
-        if a_decide and b_decide:
-            print("  ✅ 双方下车 → 复合/重新开始")
-        elif a_decide or b_decide:
-            print("  ⚠️ 一方下车 → 一方想挽回，一方已离开")
-        else:
-            print("  ❌ 双方不下车 → 各自分开")
+        var allChars = chars.concat(maleList);
+        // 确保每个角色都有partner
+        for (var s = 0; s < allChars.length; s++) {
+            if (!allChars[s].partner) {
+                var target = allChars.find(function(c) {
+                    return c.gender !== allChars[s].gender && c.partner === allChars[s].name;
+                });
+                if (target) allChars[s].partner = target.name;
+                else {
+                    var fallback = allChars.find(function(c) {
+                        return c.gender !== allChars[s].gender && c.name !== allChars[s].name;
+                    });
+                    if (fallback) allChars[s].partner = fallback.name;
+                }
+            }
+        }
 
-def show_final_summary(state: GameState):
-    print("\n" + "="*50)
-    print("【最终统计】")
-    print("="*50)
-    print("\n意愿卡趋势（最后3天）:")
-    for name, cards in state.will_cards.items():
-        if len(cards) >= 3:
-            print(f"  {name}: {cards[-3:]}")
+        return allChars;
+    }
 
-    print("\n心情晴雨表:")
-    for name, moods in state.mood_board.items():
-        if moods:
-            print(f"  {name}: {moods[-1]}")
+    // ---------- 配对 ----------
+    function pairCouples(chars) {
+        var couples = [];
+        var females = chars.filter(function(c) { return c.gender === '女' && c.isAlive; });
+        var males = chars.filter(function(c) { return c.gender === '男' && c.isAlive; });
 
-# ---------- 主循环 ----------
-def main():
-    print("\n" + "="*50)
-    print("【恋综模拟器 · 18天旅程】")
-    print("="*50)
+        for (var i = 0; i < Math.min(females.length, males.length); i++) {
+            var f = females[i];
+            var m = males.find(function(mc) { return mc.name === f.partner; }) || males[i % males.length];
+            couples.push({
+                a: f,
+                b: m,
+                aName: f.name,
+                bName: m.name
+            });
+        }
+        return couples;
+    }
 
-    females, males = create_default_characters()
-    couples = pair_couples(females, males)
+    // ---------- 重置游戏 ----------
+    function resetGame() {
+        var chars = initCharacters();
+        state.characters = chars;
+        state.couples = pairCouples(chars);
+        state.day = 0;
+        state.deaths = 0;
+        state.ended = false;
+        state.deathTriggered = false;
+        state.finalChoices = {};
+        state.willCards = {};
+        state.moodBoard = {};
+        state.dayLog = [];
+        state.started = false;
+        state.phase = 'initial';
 
-    state = GameState(females + males, couples)
+        chars.forEach(function(c) {
+            state.willCards[c.name] = [];
+            state.moodBoard[c.name] = [];
+        });
 
-    # 第0天 · 前期拍摄
-    print("\n第0天 · 前期拍摄")
-    for char in state.characters:
-        print(f"  {char.name}（{char.age}岁 · {char.occupation}）：{char.personality}")
+        document.getElementById('deathNotice').classList.add('hidden');
+        document.getElementById('finalResult').classList.add('hidden');
+        document.getElementById('mainBtn').textContent = '▶ 开始旅程';
+        document.getElementById('mainBtn').disabled = false;
+        document.getElementById('resetBtn').classList.add('hidden');
 
-    # 第1-16天
-    for _ in range(1, 17):
-        if state.ended:
-            break
-        state.advance_day()
-        day_loop(state)
-        time.sleep(0.3)  # 为了让输出可读
+        renderInitial();
+        updateUI();
+    }
 
-    # 第17天 · 抉择
-    final_choice_day(state)
+    // ---------- 渲染初始 ----------
+    function renderInitial() {
+        var scene = document.getElementById('sceneDisplay');
+        scene.innerHTML = '🌸 欢迎来到《心动信号》恋综现场！<br><br>5对男女即将开启18天的同居生活。<br>每天都有新的故事、新的选择。<br><br><span class="gray">点击下方按钮开始旅程。</span>';
 
-    # 第18天 · 返程 + 总结
-    print("\n第18天 · 返程/后采")
-    show_final_summary(state)
+        var charGrid = document.getElementById('charList');
+        charGrid.innerHTML = '';
+        state.characters.forEach(function(c) {
+            var div = document.createElement('div');
+            div.className = 'char-card';
+            div.innerHTML = '<div class="name">' + c.name + '</div>' +
+                '<div class="detail">' + c.age + '岁 · ' + c.occupation + '</div>' +
+                '<div class="detail" style="color:#888;font-size:10px;">' + c.personality + '</div>' +
+                '<div class="detail" style="color:#4fc3f7;font-size:10px;">♥ ' + c.partner + '</div>';
+            charGrid.appendChild(div);
+        });
 
-    print("\n【旅程结束】")
+        var coupleList = document.getElementById('coupleList');
+        coupleList.innerHTML = '<div style="color:#888;font-size:13px;text-align:center;padding:8px;">点击"开始旅程"后显示配对</div>';
 
-if __name__ == "__main__":
-    main()
+        document.getElementById('moodDisplay').innerHTML = '';
+        document.getElementById('interviewDisplay').innerHTML = '';
+        document.getElementById('dayNum').textContent = '0';
+        document.getElementById('coupleCount').textContent = state.couples.length;
+        document.getElementById('deathCount').textContent = '0';
+        document.getElementById('phaseDisplay').textContent = '前期拍摄 · 第0天';
+        document.getElementById('dayDisplay').textContent = '第 0 天';
+    }
+
+    // ---------- 推进一天 ----------
+    function advanceDay() {
+        if (state.ended) return;
+        if (!state.started) {
+            state.started = true;
+            state.day = 1;
+        } else {
+            state.day++;
+        }
+
+        if (state.day > 17) {
+            triggerFinal();
+            return;
+        }
+
+        state.phase = 'running';
+        document.getElementById('mainBtn').textContent = '📅 新的一天';
+        document.getElementById('resetBtn').classList.remove('hidden');
+
+        // 随机事件
+        var eventText = events[Math.floor(Math.random() * events.length)];
+        if (state.day > 10 && Math.random() < 0.08) {
+            // 死亡事件
+            var victim = state.characters.filter(function(c) { return c.isAlive; });
+            if (victim.length > 0) {
+                var dead = victim[Math.floor(Math.random() * victim.length)];
+                dead.isAlive = false;
+                state.deaths++;
+                state.deathTriggered = true;
+                document.getElementById('deathNotice').classList.remove('hidden');
+                document.getElementById('deathMsg').textContent = dead.name + ' 因意外/冲突死亡。节目被迫中断。';
+                state.ended = true;
+                document.getElementById('mainBtn').disabled = true;
+                updateUI();
+                renderDay(dead.name + ' 不幸去世...', eventText);
+                return;
+            }
+        }
+
+        // 意愿卡
+        state.characters.forEach(function(c) {
+            if (!c.isAlive) return;
+            var choices = ['是', '否', '不确定'];
+            var choice = choices[Math.floor(Math.random() * choices.length)];
+            state.willCards[c.name].push(choice);
+        });
+
+        // 心情
+        state.characters.forEach(function(c) {
+            if (!c.isAlive) return;
+            var mood = moods[Math.floor(Math.random() * moods.length)];
+            state.moodBoard[c.name].push(mood);
+        });
+
+        // 采访
+        var interviewChars = state.characters.filter(function(c) { return c.isAlive; });
+        var shuffled = interviewChars.sort(function() { return Math.random() - 0.5; });
+        var selected = shuffled.slice(0, Math.min(3, shuffled.length));
+
+        renderDay(eventText, selected);
+        updateUI();
+    }
+
+    // ---------- 渲染每日 ----------
+    function renderDay(eventText, selected) {
+        var scene = document.getElementById('sceneDisplay');
+        var html = '<span class="event">📌 ' + eventText + '</span><br><br>';
+
+        // 意愿卡
+        html += '<span style="color:#f5c842;">📋 意愿卡</span><br>';
+        var alive = state.characters.filter(function(c) { return c.isAlive; });
+        alive.forEach(function(c) {
+            var cards = state.willCards[c.name] || [];
+            var last = cards.length > 0 ? cards[cards.length - 1] : '❓';
+            var emoji = last === '是' ? '✅' : (last === '否' ? '❌' : '❓');
+            html += '<span style="font-size:13px;">' + c.name + '：' + emoji + ' ' + last + '</span> ';
+        });
+
+        // 心情
+        html += '<br><br><span style="color:#4fc3f7;">😊 心情</span><br>';
+        alive.forEach(function(c) {
+            var moodsList = state.moodBoard[c.name] || [];
+            var lastMood = moodsList.length > 0 ? moodsList[moodsList.length - 1] : '😐';
+            html += '<span style="font-size:18px;">' + c.name + ' ' + lastMood + '</span> ';
+        });
+
+        // 采访
+        if (selected && selected.length > 0) {
+            html += '<br><br><span style="color:#a8d8ea;">🎙️ 采访</span><br>';
+            var q = interviewQuestions[Math.floor(Math.random() * interviewQuestions.length)];
+            selected.forEach(function(c) {
+                html += '<div class="interview-box"><span class="speaker">' + c.name + '</span>：' + q + '<br><span style="color:#888;font-size:13px;">……（' + c.name + ' 沉默了片刻）</span></div>';
+            });
+        }
+
+        scene.innerHTML = html;
+
+        // CP列表
+        var coupleList = document.getElementById('coupleList');
+        coupleList.innerHTML = '';
+        state.couples.forEach(function(cp) {
+            var a = cp.a;
+            var b = cp.b;
+            var aAlive = a && a.isAlive !== false;
+            var bAlive = b && b.isAlive !== false;
+            var statusText = (aAlive && bAlive) ? '💕 进行中' : '💔 已结束';
+            var div = document.createElement('div');
+            div.className = 'couple-item';
+            div.innerHTML = '<span class="names">' + cp.aName + ' ♥ ' + cp.bName + '</span>' +
+                '<span class="status" style="color:' + ((aAlive && bAlive) ? '#4caf50' : '#ff6b6b') + ';">' + statusText + '</span>';
+            coupleList.appendChild(div);
+        });
+
+        // 心情显示
+        var moodDisplay = document.getElementById('moodDisplay');
+        moodDisplay.innerHTML = '';
+        var aliveNames = state.characters.filter(function(c) { return c.isAlive; });
+        aliveNames.forEach(function(c) {
+            var moodsList = state.moodBoard[c.name] || [];
+            var lastMood = moodsList.length > 0 ? moodsList[moodsList.length - 1] : '😐';
+            var span = document.createElement('span');
+            span.className = 'mood-tag';
+            span.innerHTML = '<span class="emoji">' + lastMood + '</span> ' + c.name;
+            moodDisplay.appendChild(span);
+        });
+
+        // 采访显示
+        var interviewDisplay = document.getElementById('interviewDisplay');
+        if (selected && selected.length > 0) {
+            var q = interviewQuestions[Math.floor(Math.random() * interviewQuestions.length)];
+            var html2 = '';
+            selected.forEach(function(c) {
+                html2 += '<div class="interview-box"><span class="speaker">' + c.name + '</span>：' + q + '<br><span style="color:#888;font-size:13px;">……（' + c.name + ' 沉默了片刻）</span></div>';
+            });
+            interviewDisplay.innerHTML = html2;
+        } else {
+            interviewDisplay.innerHTML = '';
+        }
+
+        updateUI();
+    }
+
+    // ---------- 最终抉择 ----------
+    function triggerFinal() {
+        state.phase = 'final';
+        document.getElementById('mainBtn').disabled = true;
+        document.getElementById('mainBtn').textContent = '🏁 旅程结束';
+
+        var scene = document.getElementById('sceneDisplay');
+        scene.innerHTML = '<span style="font-size:20px;color:#f5c842;">🎬 第17天 · 最终抉择</span><br><br>';
+
+        var finalHtml = '<div class="final-result"><div class="title">💌 最终选择</div>';
+
+        state.couples.forEach(function(cp) {
+            var a = cp.a;
+            var b = cp.b;
+            var aAlive = a && a.isAlive !== false;
+            var bAlive = b && b.isAlive !== false;
+            var aDecide = aAlive ? (Math.random() > 0.4) : false;
+            var bDecide = bAlive ? (Math.random() > 0.4) : false;
+            state.finalChoices[cp.aName] = aDecide;
+            state.finalChoices[cp.bName] = bDecide;
+
+            var resultText = '';
+            if (aDecide && bDecide) {
+                resultText = '✅ 双方下车 → 复合/重新开始';
+            } else if (aDecide || bDecide) {
+                resultText = '⚠️ 一方下车 → 一方想挽回，一方已离开';
+            } else {
+                resultText = '❌ 双方不下车 → 各自分开';
+            }
+
+            finalHtml += '<div class="pair">' +
+                '<span>' + cp.aName + ' ♥ ' + cp.bName + '</span>' +
+                '<span style="font-size:13px;">' + resultText + '</span>' +
+                '</div>';
+        });
+
+        finalHtml += '</div>';
+
+        // 统计
+        finalHtml += '<div class="summary-grid">';
+        finalHtml += '<div class="summary-item"><div class="label">总天数</div><div class="value">17</div></div>';
+        finalHtml += '<div class="summary-item"><div class="label">死亡人数</div><div class="value">' + state.deaths + '</div></div>';
+        finalHtml += '<div class="summary-item"><div class="label">存活CP</div><div class="value">' + state.couples.filter(function(cp) {
+            return cp.a.isAlive !== false && cp.b.isAlive !== false;
+        }).length + '</div></div>';
+        finalHtml += '<div class="summary-item"><div class="label">最终状态</div><div class="value" style="font-size:14px;">' +
+            (state.deaths > 0 ? '💔 有死亡' : '🌸 正常结束') + '</div></div>';
+        finalHtml += '</div>';
+
+        scene.innerHTML += finalHtml;
+
+        document.getElementById('finalResult').classList.remove('hidden');
+        document.getElementById('finalResult').innerHTML = finalHtml;
+
+        // 显示意愿卡趋势
+        var trendHtml = '<div style="margin-top:12px;"><span style="color:#f5c842;">📊 意愿卡趋势（最后3天）</span><br>';
+        state.characters.forEach(function(c) {
+            var cards = state.willCards[c.name] || [];
+            var last3 = cards.slice(-3);
+            if (last3.length > 0) {
+                trendHtml += '<span style="font-size:13px;">' + c.name + '：' + last3.join(' → ') + '</span><br>';
+            }
+        });
+        trendHtml += '</div>';
+        scene.innerHTML += trendHtml;
+
+        document.getElementById('phaseDisplay').textContent = '最终抉择 · 第17天';
+        document.getElementById('dayDisplay').textContent = '第 17 天 · 终';
+        updateUI();
+    }
+
+    // ---------- 更新UI ----------
+    function updateUI() {
+        document.getElementById('dayNum').textContent = state.day;
+        document.getElementById('coupleCount').textContent = state.couples.filter(function(cp) {
+            return cp.a.isAlive !== false && cp.b.isAlive !== false;
+        }).length;
+        document.getElementById('deathCount').textContent = state.deaths;
+        document.getElementById('phaseDisplay').textContent = state.phase === 'initial' ? '前期拍摄 · 第0天' :
+            (state.phase === 'final' ? '最终抉择 · 第17天' : '第' + state.day + '天 · 进行中');
+        document.getElementById('dayDisplay').textContent = state.phase === 'final' ? '第 17 天 · 终' :
+            (state.day > 0 ? '第 ' + state.day + ' 天' : '第 0 天');
+    }
+
+    // ---------- 绑定事件 ----------
+    document.getElementById('mainBtn').addEventListener('click', function() {
+        if (!state.started) {
+            resetGame();
+            // 重新初始化后再推进
+            state.started = true;
+            state.day = 1;
+            renderInitial();
+            advanceDay();
+        } else if (state.phase === 'initial') {
+            advanceDay();
+        } else if (state.phase === 'running' && !state.ended) {
+            advanceDay();
+        }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        if (confirm('确定要重新开始吗？进度将丢失。')) {
+            resetGame();
+            document.getElementById('resetBtn').classList.add('hidden');
+        }
+    });
+
+    // ---------- 启动 ----------
+    resetGame();
+</script>
+</body>
+</html>
