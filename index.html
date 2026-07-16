@@ -28,15 +28,11 @@ h1{color:#f5c842;text-align:center;font-size:24px;margin-bottom:4px;}
 .options button{background:#1a1a2e;border:1px solid #2a3a5e;color:#eee;padding:14px 16px;border-radius:12px;text-align:left;font-size:16px;cursor:pointer;transition:0.2s;}
 .options button:hover{background:#252545;border-color:#f5c842;}
 .options button:disabled{opacity:0.3;cursor:not-allowed;}
-.options button.purity-option{border-color:#2a5a6a;}
-.options button.purity-option:hover{border-color:#4fc3f7;background:#0a2a3a;}
-.options button.corrupt-option{border-color:#6a2a2a;}
-.options button.corrupt-option:hover{border-color:#ff6b6b;background:#2a0a0a;}
 .msg{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #1a2a3a;font-size:14px;color:#a8d8ea;margin:12px 0;min-height:40px;}
 .msg .ok{color:#4caf50;font-weight:bold;}
 .msg .fail{color:#ff6b6b;font-weight:bold;}
-.input-area{display:flex;gap:10px;margin:12px 0;}
-.input-area input{flex:1;padding:14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:16px;}
+.input-area{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;}
+.input-area input{flex:1;min-width:150px;padding:14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:16px;}
 .input-area input:focus{outline:none;border-color:#f5c842;}
 .input-area button{background:#f5c842;border:none;color:#1a1a2e;padding:14px 24px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;}
 .input-area button:hover{background:#ffd966;}
@@ -82,7 +78,7 @@ h1{color:#f5c842;text-align:center;font-size:24px;margin-bottom:4px;}
 </div>
 <div id="options" class="options"></div>
 <div id="inputArea" class="input-area hidden">
-<input type="text" id="answerInput" placeholder="输入你的推理答案...">
+<input type="text" id="answerInput" placeholder="输入你的推理...">
 <button id="submitAnswer">提交推理</button>
 </div>
 <div class="msg" id="msg">点击选项推进剧情</div>
@@ -98,98 +94,77 @@ var deathCount = 0;
 var currentSceneIdx = 0;
 var collectedClues = [];
 var gameOver = false;
-var wrongAttempts = 0; // 推理错误次数
-var maxWrongAttempts = 3; // 最多错误3次
-var currentPuzzle = null; // 当前推理题
+var wrongAttempts = 0;
+var maxWrongAttempts = 3;
+var currentPuzzle = null;
+var puzzleCompleted = {method:false,killer:false,evidence:false};
 
 // ========== 推理题数据 ==========
-var puzzles = [
-{
-id: 'method',
-question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">提示：与水有关，融化后消失</span>',
-answers: ['冰线','冰块','冰','冷冻','结冰','冰绳','水线'],
+var puzzles = {
+method: {
+question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">💡 提示：与水有关，融化后消失</span>',
+answers: ['冰线','冰块','冰','冷冻','结冰','冰绳','水线','冰丝'],
 correctMsg: '✅ 正确！凶手用冰线从门缝穿过，拉动门闩后冰融化成水。这就是密室手法！',
 wrongMsg: '❌ 再想想……现场有水渍，但没有任何工具残留。'
 },
-{
-id: 'killer',
-question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她受伤的样子。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">提示：死者手里有线索，你见过这个人</span>',
-answers: ['店员','咖啡馆店员','那个店员','女店员','咖啡店员','咖啡店店员'],
+killer: {
+question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有线索，你见过这个人</span>',
+answers: ['店员','咖啡馆店员','那个店员','女店员','咖啡店员','咖啡店店员','服务员'],
 correctMsg: '✅ 正确！死者手里攥着的黄色布料，正是店员围裙上的。她就是凶手！',
 wrongMsg: '❌ 再想想……死者手里有线索，你见过这个人。'
 },
-{
-id: 'evidence',
-question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">提示：死者手里有东西，凶手身上有痕迹</span>',
+evidence: {
+question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有东西，凶手身上有痕迹</span>',
 answers: ['黄色布料','伤疤','黄色布片','布片','布料','围裙碎片','黄色布','黄布'],
 correctMsg: '✅ 正确！黄色布料是死者从凶手身上扯下的，这就是铁证！',
 wrongMsg: '❌ 再想想……死者手里紧握着什么？凶手身上少了什么？'
 }
-];
+};
 
-// ========== 场景数据（包含密室杀人） ==========
+var puzzleList = ['method','killer','evidence'];
+var puzzleIndex = 0;
+
+// ========== 场景数据 ==========
 var scenes = [
-// 第1幕：发现尸体
 {
-ch:1,nm:'密室 · 发现尸体',
+ch:1,nm:'发现尸体',
 tx:'你赶到废弃画廊时，警笛声已经远去。<br><br>画家死了。<br><br>他倒在画廊中央，胸口插着一把刀。门从内侧反锁，钥匙在他的口袋里。窗户紧闭，从内侧锁死。<br><br><span class="dr">这是一个完美的密室。</span><br><br><span class="gray">你注意到：</span><br>· 地上有一小滩水渍<br>· 死者右手紧握着一片<span class="clue-highlight">黄色布料</span><br>· 门缝里有一道细小的划痕',
 img:'72776.jpeg',cap:'案发现场 · 密室',
 op:[
 {lb:'🕊️ "他死前在保护什么……"',nx:1,cl:'画家的死有隐情',purity:10,corrupt:-5},
 {lb:'🔍 "我要仔细检查现场。"',nx:1,cl:'密室现场',purity:5,corrupt:0},
 {lb:'🌑 "凶手一定还在附近。"',nx:1,cl:null,purity:-5,corrupt:10},
-]},
-// 第2幕：调查线索
+]
+},
 {
-ch:1,nm:'密室 · 调查线索',
+ch:1,nm:'调查线索',
 tx:'你仔细检查现场。<br><br>你发现：<br>· 门缝上有细小的划痕，像是被线勒过<br>· 地上的水渍已经快干了<br>· 死者手里那片黄色布料，和咖啡馆店员的围裙材质一样<br>· 你想起——她的手腕上有一道旧伤疤<br><br><span class="clue-highlight">线索已收集：</span> 水渍 · 划痕 · 黄色布料 · 伤疤',
 img:null,
 op:[
 {lb:'🔍 "我明白了……这是一个诡计。"',nx:2,cl:'密室手法',purity:5,corrupt:0},
 {lb:'🌑 "凶手是那个店员。"',nx:2,cl:'凶手身份',purity:-5,corrupt:10},
-]},
-// 第3幕：触发推理题1
-{
-ch:1,nm:'密室 · 推理开始',
-tx:'你站在密室中央，看着地上的水渍和门缝上的划痕。<br><br><span class="hl">现在，你需要自己推理出真相。</span><br><br>你只有3次机会。如果推理错误超过3次，你将永远找不到真相。',
-img:null,
-op:[]
+]
 },
-// 第4幕：推理题1 - 密室手法（通过后进入）
 {
-ch:1,nm:'密室 · 推理1',
-tx:'<span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">💡 提示：与水有关，融化后消失</span>',
+ch:1,nm:'推理开始',
+tx:'你站在密室中央，看着地上的水渍和门缝上的划痕。<br><br><span class="hl">现在，你需要自己推理出真相。</span><br><br>你只有3次机会。如果推理错误超过3次，你将永远找不到真相。<br><br><span class="gray">点击"继续"开始推理。</span>',
 img:null,
 op:[],
-isPuzzle:true,
-puzzleId:'method'
+isPuzzleTrigger:true
 },
-// 第5幕：推理题2 - 凶手身份
 {
-ch:1,nm:'密室 · 推理2',
-tx:'<span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她受伤的样子。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有线索，你见过这个人</span>',
+ch:1,nm:'推理中',
+tx:'',
 img:null,
 op:[],
-isPuzzle:true,
-puzzleId:'killer'
+isPuzzleActive:true
 },
-// 第6幕：推理题3 - 关键证据
 {
-ch:1,nm:'密室 · 推理3',
-tx:'<span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有东西，凶手身上有痕迹</span>',
+ch:1,nm:'真相揭晓',
+tx:'你推理出了真相。<br><br>凶手用<span class="hl">冰线</span>穿过门缝，拉动门闩锁住门。冰融化后变成水，所以现场只有水渍。<br><br>凶手是<span class="hl">咖啡馆店员</span>。死者手里的<span class="hl">黄色布料</span>就是证据。<br><br><span class="gray">画家发现她是组织派来的卧底，所以被灭口了。</span><br><br><span style="color:#f5c842;">🎉 密室杀人案告破！</span>',
 img:null,
 op:[],
-isPuzzle:true,
-puzzleId:'evidence'
-},
-// 第7幕：真相揭晓
-{
-ch:1,nm:'密室 · 真相',
-tx:'你推理出了真相。<br><br>凶手用<span class="hl">冰线</span>穿过门缝，拉动门闩锁住门。冰融化后变成水，所以现场只有水渍。<br><br>凶手是<span class="hl">咖啡馆店员</span>。死者手里的<span class="hl">黄色布料</span>就是证据。<br><br><span class="gray">画家发现她是组织派来的卧底，所以被灭口了。</span>',
-img:null,
-op:[],
-end:true,
-nc:2
+end:true
 }
 ];
 
@@ -224,10 +199,8 @@ if (!s) return;
 document.getElementById('chap').textContent = s.ch || 1;
 document.getElementById('sname').textContent = s.nm || '密室';
 
-// 场景文字
 sceneEl.innerHTML = s.tx || '';
 
-// 图片
 if (s.img) {
 imgBox.classList.remove('hidden');
 imgShow.src = s.img;
@@ -236,7 +209,6 @@ imgCap.textContent = s.cap || '关键物证';
 imgBox.classList.add('hidden');
 }
 
-// 线索显示
 if (collectedClues.length > 0) {
 clueBox.classList.remove('hidden');
 clueList.textContent = collectedClues.join(' · ');
@@ -244,30 +216,29 @@ clueList.textContent = collectedClues.join(' · ');
 clueBox.classList.add('hidden');
 }
 
-// 选项
 optEl.innerHTML = '';
 inputArea.classList.add('hidden');
 
-// 判断是否是推理题
-if (s.isPuzzle && s.puzzleId) {
-// 显示输入框
-inputArea.classList.remove('hidden');
-answerInput.value = '';
-answerInput.placeholder = '输入你的推理...';
-msgEl.innerHTML = '🔍 输入你的推理答案（3次机会）';
-nextBtn.disabled = true;
-currentPuzzle = puzzles.find(function(p) { return p.id === s.puzzleId; });
+// 推理触发点
+if (s.isPuzzleTrigger) {
+nextBtn.disabled = false;
+nextBtn.textContent = '▶ 开始推理';
+nextBtn.onclick = startPuzzle;
+msgEl.innerHTML = '💡 点击"开始推理"进入推理环节';
 return;
 }
 
-// 普通选项
+// 推理激活
+if (s.isPuzzleActive) {
+showPuzzle();
+return;
+}
+
 if (s.op && s.op.length > 0) {
 s.op.forEach(function(o, i) {
 var btn = document.createElement('button');
 btn.textContent = o.lb;
 btn.onclick = function() { selectOption(i); };
-if (o.purity && o.purity > 0) btn.classList.add('purity-option');
-if (o.corrupt && o.corrupt > 0) btn.classList.add('corrupt-option');
 optEl.appendChild(btn);
 });
 nextBtn.disabled = true;
@@ -275,8 +246,8 @@ msgEl.innerHTML = '点击选项推进剧情';
 } else if (s.end) {
 msgEl.innerHTML = '🎉 <span class="ok">案件告破！</span> 你推理出了真相。';
 nextBtn.disabled = false;
-nextBtn.textContent = '进入下一章';
-nextBtn.onclick = goNextChapter;
+nextBtn.textContent = '📖 查看结局';
+nextBtn.onclick = showEnding;
 } else {
 nextBtn.disabled = true;
 }
@@ -284,37 +255,37 @@ nextBtn.disabled = true;
 updateStats();
 }
 
-function selectOption(idx) {
-var s = scenes[currentSceneIdx];
-var o = s.op[idx];
-if (!o) return;
-
-// 禁用所有按钮
-var btns = document.querySelectorAll('#options button');
-btns.forEach(function(b) { b.disabled = true; });
-
-// 收集线索
-if (o.cl) {
-if (collectedClues.indexOf(o.cl) === -1) {
-collectedClues.push(o.cl);
-msgEl.innerHTML = '🔍 <span class="ok">获得线索：' + o.cl + '</span>';
-}
+// ========== 开始推理 ==========
+function startPuzzle() {
+puzzleIndex = 0;
+puzzleCompleted = {method:false,killer:false,evidence:false};
+currentSceneIdx = 3; // 进入推理中场景
+renderScene();
 }
 
-// 修改属性
-if (o.purity) purity = Math.min(100, Math.max(0, purity + o.purity));
-if (o.corrupt) corruption = Math.min(100, Math.max(0, corruption + o.corrupt));
-
-// 跳转
-if (o.nx !== undefined) {
-currentSceneIdx = o.nx;
-setTimeout(function() { renderScene(); }, 500);
+function showPuzzle() {
+if (puzzleIndex >= puzzleList.length) {
+// 所有推理完成
+currentSceneIdx = 4;
+renderScene();
+return;
 }
 
+var id = puzzleList[puzzleIndex];
+var p = puzzles[id];
+currentPuzzle = p;
+
+sceneEl.innerHTML = p.question;
+inputArea.classList.remove('hidden');
+answerInput.value = '';
+answerInput.placeholder = '输入你的推理...';
+msgEl.innerHTML = '🔍 输入答案（剩余机会：' + (maxWrongAttempts - wrongAttempts) + '次）';
+nextBtn.disabled = true;
+optEl.innerHTML = '';
 updateStats();
 }
 
-// ========== 推理提交 ==========
+// ========== 提交推理 ==========
 submitBtn.addEventListener('click', function() {
 if (gameOver) return;
 if (!currentPuzzle) return;
@@ -325,7 +296,6 @@ msgEl.innerHTML = '⚠️ 请输入你的推理答案';
 return;
 }
 
-// 检查答案
 var isCorrect = false;
 currentPuzzle.answers.forEach(function(a) {
 if (input.toLowerCase().indexOf(a.toLowerCase()) !== -1) {
@@ -334,35 +304,62 @@ isCorrect = true;
 });
 
 if (isCorrect) {
-// 正确！
 msgEl.innerHTML = '✅ <span class="ok">' + currentPuzzle.correctMsg + '</span>';
 inputArea.classList.add('hidden');
-// 跳到下一个场景
-currentSceneIdx++;
+var id = puzzleList[puzzleIndex];
+puzzleCompleted[id] = true;
+puzzleIndex++;
+wrongAttempts = 0;
 setTimeout(function() {
-renderScene();
-}, 1000);
+showPuzzle();
+}, 1200);
 } else {
-// 错误
 wrongAttempts++;
 var remaining = maxWrongAttempts - wrongAttempts;
 msgEl.innerHTML = '❌ <span class="fail">' + currentPuzzle.wrongMsg + '</span> 剩余机会：' + remaining;
 answerInput.value = '';
 
 if (wrongAttempts >= maxWrongAttempts) {
-// 触发死亡结局
 gameOver = true;
+deathCount++;
+document.getElementById('deathCount').textContent = deathCount;
 showDeath('推理失败 · 组织发现了你', '你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。');
 }
 }
 });
 
-// 回车提交
 answerInput.addEventListener('keydown', function(e) {
 if (e.key === 'Enter') {
 submitBtn.click();
 }
 });
+
+// ========== 普通选项 ==========
+function selectOption(idx) {
+var s = scenes[currentSceneIdx];
+var o = s.op[idx];
+if (!o) return;
+
+var btns = document.querySelectorAll('#options button');
+btns.forEach(function(b) { b.disabled = true; });
+
+if (o.cl) {
+if (collectedClues.indexOf(o.cl) === -1) {
+collectedClues.push(o.cl);
+msgEl.innerHTML = '🔍 <span class="ok">获得线索：' + o.cl + '</span>';
+}
+}
+
+if (o.purity) purity = Math.min(100, Math.max(0, purity + o.purity));
+if (o.corrupt) corruption = Math.min(100, Math.max(0, corruption + o.corrupt));
+
+if (o.nx !== undefined) {
+currentSceneIdx = o.nx;
+setTimeout(function() { renderScene(); }, 500);
+}
+
+updateStats();
+}
 
 // ========== 死亡结局 ==========
 function showDeath(title, desc) {
@@ -371,43 +368,18 @@ optEl.innerHTML = '';
 inputArea.classList.add('hidden');
 msgEl.innerHTML = '💀 <span class="fail">你死了。</span>';
 nextBtn.disabled = true;
-gameOver = true;
-deathCount++;
-document.getElementById('deathCount').textContent = deathCount;
 }
 
 function retryFromCheckpoint() {
-// 回到当前章节开头
-var currentChap = scenes[currentSceneIdx].ch || 1;
-var checkpointIdx = 0;
-for (var i = 0; i < scenes.length; i++) {
-if (scenes[i].ch === currentChap) {
-checkpointIdx = i;
-break;
-}
-}
-currentSceneIdx = checkpointIdx;
+currentSceneIdx = 2;
+puzzleIndex = 0;
 wrongAttempts = 0;
 gameOver = false;
+puzzleCompleted = {method:false,killer:false,evidence:false};
 renderScene();
 }
 
-// ========== 跳转下一章 ==========
-function goNextChapter() {
-var s = scenes[currentSceneIdx];
-if (s && s.nc !== undefined) {
-var nextIdx = currentSceneIdx + 1;
-while (nextIdx < scenes.length && scenes[nextIdx].ch === s.ch) { nextIdx++; }
-if (nextIdx < scenes.length) {
-currentSceneIdx = nextIdx;
-renderScene();
-} else {
-showEnding();
-}
-}
-nextBtn.disabled = true;
-}
-
+// ========== 结局 ==========
 function showEnding() {
 var balance = purity - corruption;
 var endingIdx = 0;
@@ -441,6 +413,8 @@ currentSceneIdx = 0;
 collectedClues = [];
 gameOver = false;
 wrongAttempts = 0;
+puzzleIndex = 0;
+puzzleCompleted = {method:false,killer:false,evidence:false};
 currentPuzzle = null;
 nextBtn.textContent = '继续';
 nextBtn.onclick = null;
