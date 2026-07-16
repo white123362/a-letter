@@ -3,30 +3,35 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>恋综模拟器 · AI版</title>
+    <title>🎮 AI游戏大厅</title>
     <style>
         *{margin:0;padding:0;box-sizing:border-box;}
         body{background:#0a0a0a;color:#ddd;font-family:'Segoe UI',Arial,sans-serif;padding:12px;min-height:100vh;display:flex;justify-content:center;}
-        .box{max-width:500px;width:100%;background:#121212;border-radius:16px;padding:20px;border:1px solid #2a2a2a;position:relative;}
+        .box{max-width:500px;width:100%;background:#121212;border-radius:16px;padding:20px;border:1px solid #2a2a2a;}
         h1{color:#f5c842;text-align:center;font-size:22px;margin-bottom:4px;}
         .sub{text-align:center;color:#888;font-size:13px;border-bottom:1px solid #1a1a2a;padding-bottom:12px;margin-bottom:12px;}
-        .stats{display:flex;justify-content:space-between;gap:6px;margin-bottom:12px;flex-wrap:wrap;}
-        .stat-box{flex:1;min-width:55px;text-align:center;padding:6px 4px;border-radius:8px;font-size:12px;background:#0a0a18;border:1px solid #1a2a3a;}
-        .stat-box .num{color:#f5c842;font-weight:bold;font-size:16px;}
-        .stat-box.love .num{color:#ff6b9d;}
-        .day-display{text-align:center;font-size:28px;color:#f5c842;font-weight:bold;padding:6px 0;}
-        .phase-tag{text-align:center;font-size:14px;color:#888;margin-bottom:8px;}
-        .scene{background:#0a0a18;padding:14px;border-radius:12px;border-left:3px solid #f5c842;margin:10px 0;font-size:14px;line-height:1.8;min-height:50px;max-height:180px;overflow-y:auto;}
+        .game-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:10px 0;}
+        .game-card{background:#0a0a18;border:1px solid #1a2a3a;border-radius:12px;padding:14px 10px;text-align:center;cursor:pointer;transition:0.2s;}
+        .game-card:hover{background:#1a1a2e;border-color:#f5c842;transform:scale(1.02);}
+        .game-card .icon{font-size:28px;display:block;margin-bottom:4px;}
+        .game-card .gname{color:#f5c842;font-size:14px;font-weight:bold;}
+        .game-card .gdesc{color:#888;font-size:11px;margin-top:2px;}
+        .game-card .tag{font-size:9px;background:#1a3a2a;color:#4fc3f7;padding:2px 8px;border-radius:8px;display:inline-block;margin-top:4px;}
+        .back-btn{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;padding:10px;border-radius:30px;font-size:14px;cursor:pointer;width:100%;margin-top:8px;}
+        .back-btn:hover{border-color:#f5c842;color:#f5c842;}
+        .hidden{display:none;}
+        .scene{background:#0a0a18;padding:14px;border-radius:12px;border-left:3px solid #f5c842;margin:10px 0;font-size:14px;line-height:1.8;min-height:60px;max-height:300px;overflow-y:auto;}
         .scene .hl{color:#f5c842;}
         .scene .dr{color:#ff6b6b;}
         .scene .gray{color:#888;}
         .scene .event{color:#4fc3f7;}
-        .chat-area{background:#0a0a18;border-radius:12px;border:1px solid #1a2a3a;padding:12px;margin:10px 0;max-height:280px;overflow-y:auto;}
-        .chat-msg{padding:6px 12px;margin:4px 0;border-radius:10px;font-size:14px;max-width:88%;}
+        .chat-area{background:#0a0a18;border-radius:12px;border:1px solid #1a2a3a;padding:12px;margin:10px 0;max-height:300px;overflow-y:auto;}
+        .chat-msg{padding:6px 12px;margin:4px 0;border-radius:10px;font-size:14px;max-width:92%;}
         .chat-msg.player{background:#1a2a4a;color:#a8d8ea;text-align:right;margin-left:auto;border-bottom-right-radius:4px;}
-        .chat-msg.npc{background:#1a2a2a;color:#ddd;text-align:left;border-bottom-left-radius:4px;}
-        .chat-msg.npc .name{color:#f5c842;font-weight:bold;}
+        .chat-msg.ai{background:#1a2a2a;color:#ddd;text-align:left;border-bottom-left-radius:4px;}
+        .chat-msg.ai .name{color:#f5c842;font-weight:bold;}
         .chat-msg.system{background:#1a1a1a;color:#888;text-align:center;font-style:italic;max-width:100%;font-size:13px;}
+        .chat-msg.hint{background:#0a1a2a;color:#4fc3f7;text-align:center;max-width:100%;font-size:13px;border:1px dashed #2a4a5a;}
         .input-row{display:flex;gap:8px;margin:8px 0;}
         .input-row input{flex:1;padding:12px 14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:15px;}
         .input-row input:focus{outline:none;border-color:#f5c842;}
@@ -39,13 +44,11 @@
         .btn:disabled{opacity:0.3;cursor:not-allowed;}
         .btn-secondary{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;margin-top:6px;}
         .btn-secondary:hover{border-color:#f5c842;color:#f5c842;}
-        .hidden{display:none;}
         .modal-overlay{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.85);display:flex;justify-content:center;align-items:center;z-index:9999;padding:20px;animation:fadeIn 0.3s ease;}
         .modal-overlay.hidden{display:none;}
         .modal-box{max-width:460px;width:100%;background:#1a1a2e;border-radius:20px;padding:28px 24px;border:3px solid #f5c842;box-shadow:0 0 60px rgba(245,200,66,0.15);max-height:90vh;overflow-y:auto;animation:slideUp 0.4s ease;}
         .modal-box.danger{border-color:#ff0000;box-shadow:0 0 60px rgba(255,0,0,0.25);animation:slideUp 0.4s ease,shake 0.5s ease;}
         .modal-box .modal-title{text-align:center;font-size:22px;font-weight:bold;color:#f5c842;margin-bottom:12px;border-bottom:1px solid #2a2a2a;padding-bottom:12px;}
-        .modal-box.danger .modal-title{color:#ff0000;}
         .modal-box .modal-body{font-size:15px;line-height:1.9;color:#ddd;padding:8px 0;}
         .modal-box .modal-body .hl{color:#f5c842;}
         .modal-box .modal-body .dr{color:#ff6b6b;}
@@ -53,67 +56,53 @@
         .modal-box .modal-btn:hover{background:#ffd966;}
         .modal-box.danger .modal-btn{background:#ff0000;color:#fff;}
         .modal-box.danger .modal-btn:hover{background:#cc0000;}
+        .modal-box .modal-choice{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+        .modal-box .modal-choice button{background:#0a0a18;border:1px solid #2a3a5e;color:#eee;padding:12px 16px;border-radius:10px;font-size:14px;text-align:left;cursor:pointer;transition:0.2s;}
+        .modal-box .modal-choice button:hover{background:#252545;border-color:#f5c842;}
+        .modal-box .modal-choice button.danger{border-color:#6a2a2a;}
+        .modal-box .modal-choice button.danger:hover{background:#2a0a0a;border-color:#ff0000;}
+        .modal-box .modal-choice button.love{border-color:#2a5a6a;}
+        .modal-box .modal-choice button.love:hover{background:#0a2a3a;border-color:#4fc3f7;}
         .register-area{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
         .register-area input,.register-area select{padding:12px 14px;border-radius:10px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:15px;width:100%;}
         .register-area input:focus,.register-area select:focus{outline:none;border-color:#f5c842;}
         .register-area .row{display:flex;gap:10px;}
         .register-area .row input,.register-area .row select{flex:1;}
+        .note{color:#555;font-size:11px;text-align:center;margin-top:8px;}
         .back-link{display:block;text-align:center;color:#888;font-size:13px;margin-top:12px;text-decoration:none;border-top:1px solid #1a1a2a;padding-top:12px;}
         .back-link:hover{color:#f5c842;}
-        .note{color:#555;font-size:11px;text-align:center;margin-top:8px;}
-        .couple-list{display:flex;flex-direction:column;gap:4px;margin:6px 0;}
-        .couple-item{background:#0a0a18;padding:6px 12px;border-radius:8px;border:1px solid #1a2a3a;display:flex;justify-content:space-between;align-items:center;font-size:13px;}
-        .couple-item .names{font-weight:bold;color:#f5c842;}
-        .char-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:4px;margin:6px 0;}
-        .char-card{background:#0a0a18;padding:6px;border-radius:8px;border:1px solid #1a2a3a;font-size:11px;text-align:center;}
-        .char-card .name{color:#f5c842;font-weight:bold;}
-        .char-card .detail{color:#888;font-size:10px;}
-        .char-card.player{border-color:#f5c842;background:#1a1a2e;}
-        .char-card.dead{opacity:0.4;border-color:#6a2a2a;}
+        .badge-ai{background:#1a3a2a;color:#4fc3f7;font-size:9px;padding:2px 8px;border-radius:8px;margin-left:4px;border:1px solid #2a5a4a;}
+        .game-title{font-size:20px;color:#f5c842;text-align:center;}
+        .game-sub{text-align:center;color:#888;font-size:13px;margin-bottom:8px;}
         @keyframes fadeIn{0%{opacity:0;}100%{opacity:1;}}
         @keyframes slideUp{0%{transform:translateY(40px);opacity:0;}100%{transform:translateY(0);opacity:1;}}
         @keyframes shake{0%,100%{transform:translateX(0);}20%{transform:translateX(-12px);}40%{transform:translateX(12px);}60%{transform:translateX(-8px);}80%{transform:translateX(8px);}}
-        .ai-badge{background:#1a3a2a;color:#4fc3f7;font-size:10px;padding:2px 8px;border-radius:10px;margin-left:6px;border:1px solid #2a5a4a;}
     </style>
 </head>
 <body>
 <div class="box">
-    <h1>🌸 恋综模拟器 <span class="ai-badge">AI</span></h1>
-    <div class="sub">18天 · 心动 · 争夺 · 背叛</div>
-
-    <div id="registerArea">
-        <div style="color:#f5c842;font-size:18px;text-align:center;margin-bottom:12px;">📝 注册你的角色</div>
-        <div class="register-area">
-            <input type="text" id="playerName" placeholder="你的名字">
-            <div class="row">
-                <select id="playerGender"><option value="男">男</option><option value="女">女</option></select>
-                <input type="text" id="playerHobby" placeholder="爱好">
-            </div>
-            <input type="text" id="playerStatus" placeholder="地位（如：富二代、打工人）">
-            <button class="btn" id="registerBtn">✅ 进入恋综</button>
-        </div>
+    <div id="homePage">
+        <h1>🎮 AI游戏大厅</h1>
+        <div class="sub">7种AI游戏 · 全部接入DeepSeek</div>
+        <div class="game-grid" id="gameGrid"></div>
+        <div class="note">💡 点击卡片进入游戏 · AI实时响应</div>
     </div>
 
-    <div id="gameArea" class="hidden">
-        <div class="stats">
-            <div class="stat-box">📅 <span class="num" id="dayNum">0</span>天</div>
-            <div class="stat-box">💑 <span class="num" id="coupleCount">5</span>对</div>
-            <div class="stat-box love">❤️ <span class="num" id="loveVal">50</span></div>
-            <div class="stat-box">💀 <span class="num" id="deathCount">0</span></div>
+    <div id="gamePage" class="hidden">
+        <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:8px;">
+            <span class="game-title" id="gameTitle">🎮 游戏</span>
+            <button class="back-btn" id="backHomeBtn" style="width:auto;padding:6px 16px;margin:0;">← 返回</button>
         </div>
-        <div id="phaseDisplay" class="phase-tag">第0天 · 前期拍摄</div>
-        <div class="day-display" id="dayDisplay">第 0 天</div>
+        <div class="game-sub" id="gameSub">游戏说明</div>
         <div class="scene" id="sceneDisplay"></div>
-        <div id="charGrid" class="char-grid"></div>
-        <div id="coupleList" class="couple-list"></div>
         <div class="chat-area" id="chatArea"></div>
         <div class="input-row">
-            <input type="text" id="msgInput" placeholder="输入你想说的话..." maxlength="200" disabled>
+            <input type="text" id="msgInput" placeholder="输入..." maxlength="300" disabled>
             <button id="sendBtn" disabled>发送</button>
         </div>
-        <button class="btn" id="mainBtn">📅 新的一天</button>
-        <button class="btn btn-secondary hidden" id="resetBtn">🔄 重新开始</button>
-        <div class="note">💡 你的每句话CP都会用AI回应 · 好感度影响结局</div>
+        <button class="btn btn-secondary" id="actionBtn" style="display:none;">▶ 继续</button>
+        <button class="btn btn-secondary" id="resetGameBtn">🔄 重新开始</button>
+        <div class="note" id="gameNote">💡 输入你的回答或提问</div>
     </div>
 </div>
 
@@ -128,63 +117,17 @@
 <script>
 var API_KEY = 'sk-63de969541fa4461867119dd72aba997';
 var API_URL = 'https://api.deepseek.com/v1/chat/completions';
-    var FEMALE_NAMES = ['富婆','大小姐','老板娘','时灵','4b'];
-var MALE_NAMES = ['蛙蛙','青蛙','吉力','肉片','挽辰'];
-var FEMALE_PERSONALITIES = ['表面高冷，内心渴望被爱','娇生惯养但极度聪明','掌控欲强善于算计','神秘冷淡藏有秘密','毒舌但重情义'];
-var MALE_PERSONALITIES = ['玩世不恭内心深情','温吞但极端忠诚','精明商人利益至上','暴躁但重感情','温柔极度敏感'];
-var FEMALE_OCC = ['企业继承人','画廊老板','网红博主','金融操盘手','自由艺术家'];
-var MALE_OCC = ['创业者','投资顾问','酒吧老板','职业赛车手','独立设计师'];
 
-var EVENTS = [
-    '篝火晚会，有人提议玩真心话大冒险。','节目组安排了双人任务：一起做一顿晚饭。',
-    '深夜，你听到隔壁房车传来争吵声。','暴雨困住了所有人，你们被迫挤在一起。',
-    '节目组突然宣布：今天要互换CP。','你在营地角落发现了一封信，上面写着你的名字。',
-    '有人提议"每个人说一个秘密"。','任务是"寻找遗失的戒指"，你们被分散到森林里。',
-    '有人喝醉了，在众人面前说出了不该说的话。','节目组安排了"真心话拍卖会"。',
-    '你收到了一条匿名短信。','今天是"单独约会日"。','有人突然宣布要退出节目。',
-    '节目组安排了"真假真心话"游戏。','深夜，你听到有人在哭。',
-    '任务："写给未来自己的一封信"。','距离最终抉择还有三天，气氛紧张。',
-    '有人在你门口放了一束向日葵。'
-];
+var currentGame = null;
+var gameState = {};
+var isAILoading = false;
 
-var STEAL_EVENTS = [
-    {who:'富婆', target:'挽辰', text:'富婆 当着你的面邀请 挽辰 出去约会。她笑着说："我觉得我们更合适。"'},
-    {who:'大小姐', target:'吉力', text:'大小姐 走到 吉力 身边，挽住他的胳膊："我知道你对我也有感觉。"'},
-    {who:'老板娘', target:'蛙蛙', text:'老板娘 递给 蛙蛙 一杯酒："别管别人了，今晚陪我。"'},
-    {who:'时灵', target:'肉片', text:'时灵 在篝火边悄悄拉住 肉片 的手："我有话想对你说。"'},
-    {who:'4b', target:'青蛙', text:'4b 当着所有人的面说："我喜欢你，跟我走吧。"'}
-];
-
-var DEATH_REASONS = [
-    '在深夜离开营地后失踪，三天后被发现。',
-    '与另一名嘉宾发生激烈冲突，意外重伤不治。',
-    '独自前往后山，失足坠落。',
-    '在节目组的挑战中突发疾病，抢救无效。',
-    '留下一封遗书后离开，再也没有回来。'
-];
-
-var state = {
-    player:null, characters:[], couples:[], day:0, deaths:0, love:50,
-    phase:'register', ended:false, started:false, chatLog:[],
-    usedEvents:[], usedSteals:[], usedDeaths:[],
-    waitingForResponse:false, isAILoading:false
-};
-
-function shuffle(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
-function pick(arr,used){var av=arr.filter(function(x){return used.indexOf(x)===-1;});if(av.length===0){used.length=0;av=arr;}var p=av[Math.floor(Math.random()*av.length)];used.push(p);return p;}
-function rand(a,b){return Math.floor(Math.random()*(b-a+1))+a;}
-function pickOne(arr){return arr[Math.floor(Math.random()*arr.length)];}
-
-function callAI(userMessage, npcName, npcPersonality, callback) {
-    if (!API_KEY) { callback('请先设置 API Key'); return; }
-    var systemPrompt = '你是 ' + npcName + '，' + npcPersonality + '。你正在参加恋爱综艺节目，你的CP是用户。用中文回复，像真人对话，不要太长（30字以内）。根据用户说的话来回应，不要偏离角色。';
+function callAI(messages, callback) {
+    if (!API_KEY) { callback('请设置 API Key'); return; }
     var data = {
         model: 'deepseek-chat',
-        messages: [
-            {role: 'system', content: systemPrompt},
-            {role: 'user', content: userMessage}
-        ],
-        max_tokens: 80,
+        messages: messages,
+        max_tokens: 300,
         temperature: 0.9
     };
     fetch(API_URL, {
@@ -206,8 +149,7 @@ function callAI(userMessage, npcName, npcPersonality, callback) {
     })
     .then(function(json) {
         if (json.choices && json.choices.length > 0) {
-            var reply = json.choices[0].message.content.trim();
-            callback(null, reply);
+            callback(null, json.choices[0].message.content.trim());
         } else {
             callback('AI 没有返回有效回复');
         }
@@ -217,126 +159,18 @@ function callAI(userMessage, npcName, npcPersonality, callback) {
     });
 }
 
-function initChars(player){
-    var chars=[];
-    var fPool=FEMALE_NAMES.slice(), mPool=MALE_NAMES.slice();
-    shuffle(fPool); shuffle(mPool);
-    var fList=fPool.slice(), mList=mPool.slice();
-    if(player.gender==='女'){fList[0]=player.name;}else{mList[0]=player.name;}
-    for(var i=0;i<fList.length;i++){
-        var name=fList[i], isP=(name===player.name), idx=i%FEMALE_PERSONALITIES.length;
-        chars.push({name:name,age:isP?25:24+rand(0,3),gender:'女',personality:isP?player.personality||'神秘':FEMALE_PERSONALITIES[idx],occupation:isP?player.status||'玩家':FEMALE_OCC[i%FEMALE_OCC.length],isPlayer:isP,alive:true,hobby:isP?player.hobby||'未知':['健身','画画','写作','旅行','美食'][i%5],status:isP?player.status||'玩家':['富二代','打工人','艺术家','自由职业','学生'][i%5],love:50});
-    }
-    for(var j=0;j<mList.length;j++){
-        var mn=mList[j], mP=(mn===player.name), mIdx=j%MALE_PERSONALITIES.length;
-        chars.push({name:mn,age:mP?27:25+rand(0,4),gender:'男',personality:mP?player.personality||'神秘':MALE_PERSONALITIES[mIdx],occupation:mP?player.status||'玩家':MALE_OCC[j%MALE_OCC.length],isPlayer:mP,alive:true,hobby:mP?player.hobby||'未知':['健身','玩游戏','旅行','摄影','音乐'][j%5],status:mP?player.status||'玩家':['富二代','创业者','打工人','艺术家','自由职业'][j%5],love:50});
-    }
-    var females=chars.filter(function(c){return c.gender==='女'&&c.alive;});
-    var males=chars.filter(function(c){return c.gender==='男'&&c.alive;});
-    shuffle(males);
-    var couples=[];
-    for(var k=0;k<Math.min(females.length,males.length);k++){
-        var f=females[k], m=males[k%males.length];
-        if(f.isPlayer&&m.isPlayer){var sw=males.find(function(x){return !x.isPlayer;});if(sw){males[k]=sw;m=sw;}}
-        couples.push({a:f,b:m,aName:f.name,bName:m.name});
-    }
-    return {characters:chars,couples:couples};
-}
+var GAMES = [
+    { id: 'detective', icon: '🔍', name: '侦探推理', desc: '审问AI嫌疑人，找出真凶', tag: '推理' },
+    { id: 'survival', icon: '🏔️', name: '生存冒险', desc: 'AI生成事件，你选择生死', tag: '生存' },
+    { id: 'rpg', icon: '💬', name: '角色扮演', desc: '自定义角色，AI陪你演', tag: '扮演' },
+    { id: 'psych', icon: '🧠', name: '心理测试', desc: 'AI分析你的内心世界', tag: '测试' },
+    { id: 'love', icon: '💕', name: '恋爱模拟', desc: 'AI恋人，记住你的喜好', tag: '恋爱' },
+    { id: 'debate', icon: '⚖️', name: '谈判挑战', desc: '靠嘴炮说服AI对手', tag: '谈判' },
+    { id: 'seaturtle', icon: '🍲', name: '海龟汤', desc: '提问还原离奇真相', tag: '推理' }
+];
 
-function getPlayerCouple(){
-    for(var i=0;i<state.couples.length;i++){var c=state.couples[i];if(c.a.isPlayer||c.b.isPlayer)return c;}
-    return null;
-}
-function getPlayer(){return state.player;}
-function getNPC(){
-    var cp=getPlayerCouple();
-    if(!cp)return null;
-    return cp.a.isPlayer?cp.b:cp.a;
-}
-
-function renderAll(){
-    document.getElementById('dayNum').textContent=state.day;
-    document.getElementById('coupleCount').textContent=state.couples.filter(function(c){return c.a.alive&&c.b.alive;}).length;
-    document.getElementById('loveVal').textContent=state.love;
-    document.getElementById('deathCount').textContent=state.deaths;
-    document.getElementById('phaseDisplay').textContent=state.phase==='initial'?'第0天 · 前期拍摄':(state.phase==='final'?'最终抉择 · 第17天':'第'+state.day+'天 · 进行中');
-    document.getElementById('dayDisplay').textContent=state.phase==='final'?'第 17 天 · 终':(state.day>0?'第 '+state.day+' 天':'第 0 天');
-
-    var grid=document.getElementById('charGrid');grid.innerHTML='';
-    state.characters.forEach(function(c){
-        var div=document.createElement('div');
-        div.className='char-card'+(c.isPlayer?' player':'')+(c.alive?'':' dead');
-        div.innerHTML='<div class="name">'+c.name+'</div><div class="detail">'+(c.alive?'❤️ '+c.love:'💀已故')+'</div>';
-        grid.appendChild(div);
-    });
-
-    var cl=document.getElementById('coupleList');cl.innerHTML='';
-    state.couples.forEach(function(cp){
-        var a=cp.a,b=cp.b;var alive=a.alive&&b.alive;
-        var div=document.createElement('div');div.className='couple-item';
-        div.innerHTML='<span class="names">'+cp.aName+' ♥ '+cp.bName+'</span><span style="font-size:11px;color:'+(alive?'#4caf50':'#ff6b6b')+';">'+(alive?'💕 '+(Math.round((a.love+b.love)/2))+'%':'💔已结束')+'</span>';
-        cl.appendChild(div);
-    });
-}
-
-function addChat(who, text, type){
-    var area=document.getElementById('chatArea');
-    var div=document.createElement('div');
-    div.className='chat-msg '+type;
-    var name=type==='player'?'你':(type==='system'?'系统':who);
-    if(type==='npc'){div.innerHTML='<span class="name">'+who+'</span>：'+text;}
-    else{div.innerHTML=name+'：'+text;}
-    area.appendChild(div);
-    area.scrollTop=area.scrollHeight;
-    state.chatLog.push({who:who,text:text,type:type});
-}
-
-function sendMessage() {
-    if(!state.started||state.ended||state.phase==='final'||state.isAILoading)return;
-    var input=document.getElementById('msgInput');
-    var txt=input.value.trim();
-    if(!txt)return;
-    input.value='';
-    input.disabled=true;
-    document.getElementById('sendBtn').disabled=true;
-
-    var npc=getNPC();
-    if(!npc){addChat('系统','没有找到CP','system');input.disabled=false;document.getElementById('sendBtn').disabled=false;return;}
-
-    addChat('你',txt,'player');
-    state.isAILoading=true;
-    addChat('系统',npc.name+' 正在思考...','system');
-
-    callAI(txt, npc.name, npc.personality, function(err, reply) {
-        var msgs=document.querySelectorAll('.chat-msg.system');
-        if(msgs.length>0){var last=msgs[msgs.length-1];if(last.textContent.indexOf('正在思考')!==-1)last.remove();}
-
-        if(err){
-            addChat('系统','⚠️ '+err+'，使用备用回复','system');
-            var fallbacks=['嗯，你说得对。','我有在听。','继续说吧。','……好的。','我明白了。','真的吗？','原来是这样。'];
-            reply=pickOne(fallbacks);
-            var loveChange=rand(-2,3);
-        }else{
-            var loveChange=rand(-2,5);
-        }
-
-        npc.love=Math.max(0,Math.min(100,npc.love+loveChange));
-        state.love=Math.max(0,Math.min(100,state.love+Math.round(loveChange/2)));
-        addChat(npc.name,'「'+reply+'」 (好感度'+(loveChange>=0?'+':'')+loveChange+')','npc');
-        state.isAILoading=false;
-        renderAll();
-        input.disabled=false;
-        document.getElementById('sendBtn').disabled=false;
-        input.focus();
-
-        if(Math.random()<0.1 && state.day>0){
-            setTimeout(function(){
-                var msgs=['你最近还好吗？','今天的星星很漂亮。','我在想你呢。','你觉得我们会走到最后吗？','谢谢你陪着我。'];
-                addChat(npc.name,'「'+pickOne(msgs)+'」','npc');
-            },1500);
-        }
-    });
-}
+function shuffleArray(a){for(var i=a.length-1;i>0;i--){var j=Math.floor(Math.random()*(i+1));var t=a[i];a[i]=a[j];a[j]=t;}return a;}
+function pickOne(a){return a[Math.floor(Math.random()*a.length)];}
 
 function showModal(title,body,btnText,isDanger,cb){
     var ov=document.getElementById('modalOverlay'),box=document.getElementById('modalBox');
@@ -348,111 +182,376 @@ function showModal(title,body,btnText,isDanger,cb){
     document.getElementById('modalBtn').onclick=function(){ov.classList.add('hidden');if(cb)cb();};
     if(isDanger){box.style.animation='none';setTimeout(function(){box.style.animation='slideUp 0.4s ease, shake 0.5s ease';},10);}
 }
-    document.getElementById('registerBtn').addEventListener('click',function(){
-    var name=document.getElementById('playerName').value.trim();
-    var gender=document.getElementById('playerGender').value;
-    var hobby=document.getElementById('playerHobby').value.trim()||'未知';
-    var status=document.getElementById('playerStatus').value.trim()||'打工人';
-    if(!name){alert('请输入你的名字');return;}
-    var player={name:name,gender:gender,age:25,hobby:hobby,status:status,personality:'神秘且充满魅力'};
-    state.player=player;
-    var result=initChars(player);
-    state.characters=result.characters;
-    state.couples=result.couples;
-    document.getElementById('registerArea').classList.add('hidden');
-    document.getElementById('gameArea').classList.remove('hidden');
-    document.getElementById('msgInput').disabled=false;
-    document.getElementById('sendBtn').disabled=false;
-    state.started=true;state.day=0;state.phase='initial';
-    renderAll();
-    var cp=getPlayerCouple();
-    var npc=cp?cp.a.isPlayer?cp.b:cp.a:null;
-    showModal('🎬 欢迎来到恋综','你是 <span class="hl">'+player.name+'</span>（'+player.gender+'），'+player.status+'。<br><br>你的CP是 <span class="hl">'+(cp?cp.aName+' ♥ '+cp.bName:'未知')+'</span><br><br>试试在聊天框里跟TA说句话吧！<br><br><span style="color:#4fc3f7;">🤖 AI 会根据你的话实时回复</span>','开始旅程',false);
-});
 
-document.getElementById('sendBtn').addEventListener('click',sendMessage);
-document.getElementById('msgInput').addEventListener('keydown',function(e){if(e.key==='Enter')sendMessage();});
-
-document.getElementById('mainBtn').addEventListener('click',function(){
-    if(state.ended||state.phase==='final')return;
-    if(!state.started){state.started=true;state.day=1;}else{state.day++;}
-    if(state.day>17){triggerFinal();return;}
-    state.phase='running';
-    document.getElementById('mainBtn').textContent='📅 新的一天';
-    document.getElementById('resetBtn').classList.remove('hidden');
-
-    var evt=pick(EVENTS,state.usedEvents);
-    addChat('系统','📌 '+evt,'system');
-
-    if(Math.random()<0.2 && state.day>2){
-        var steal=pickOne(STEAL_EVENTS);
-        var targetChar=state.characters.find(function(c){return c.name===steal.target&&c.alive;});
-        var whoChar=state.characters.find(function(c){return c.name===steal.who&&c.alive;});
-        if(targetChar&&whoChar&&!targetChar.isPlayer&&!whoChar.isPlayer){
-            addChat('系统','💔 '+steal.text,'system');
-            if(Math.random()<0.3){
-                targetChar.love=Math.max(0,targetChar.love-10);
-                addChat('系统','💔 '+targetChar.name+' 对 '+whoChar.name+' 产生了好感，与CP的关系出现裂痕。','system');
-            }
-        }
-    }
-
-    if(Math.random()<0.06 && state.day>5 && state.deaths<3){
-        var aliveChars=state.characters.filter(function(c){return c.alive&&!c.isPlayer;});
-        if(aliveChars.length>0){
-            var victim=aliveChars[rand(0,aliveChars.length-1)];
-            victim.alive=false;
-            state.deaths++;
-            var reason=pickOne(DEATH_REASONS);
-            addChat('系统','💀 '+victim.name+' '+reason,'system');
-            showModal('💀 悲剧发生',victim.name+' 不幸离世。<br><br>原因：'+reason+'<br><br>其他嘉宾陷入了沉默。但生活还要继续。','继续',true);
-            state.characters.forEach(function(c){if(c.alive&&!c.isPlayer){c.love=Math.max(0,c.love-rand(0,5));}});
-        }
-    }
-
-    var npcs=state.characters.filter(function(c){return c.alive&&!c.isPlayer;});
-    if(npcs.length>1 && Math.random()<0.3){
-        var npc1=npcs[rand(0,npcs.length-1)], npc2=npcs[rand(0,npcs.length-1)];
-        if(npc1!==npc2){
-            var msgs=['今天天气真好。','你觉得我们会成吗？','我有点想家了。','你看起来不错。','能聊聊吗？'];
-            addChat(npc1.name,'「'+pickOne(msgs)+'」→ '+npc2.name,'npc');
-            if(Math.random()<0.3){npc1.love=Math.min(100,npc1.love+rand(1,3));}
-        }
-    }
-
-    renderAll();
-    document.getElementById('msgInput').focus();
-});
-
-function triggerFinal(){
-    state.phase='final';
-    document.getElementById('mainBtn').disabled=true;
-    document.getElementById('mainBtn').textContent='🏁 已完结';
-    var totalLove=0,count=0;
-    state.characters.forEach(function(c){if(c.alive){totalLove+=c.love;count++;}});
-    var avgLove=count>0?Math.round(totalLove/count):50;
-    var cp=getPlayerCouple();
-    var npc=cp?cp.a.isPlayer?cp.b:cp.a:null;
-    var npcLove=npc?npc.love:50;
-    var result='';
-    if(npcLove>=70 && state.love>=60) result='🌅 幸福结局：你们成为了最令人羡慕的一对。';
-    else if(npcLove>=50 && state.love>=40) result='🌤️ 普通结局：你们选择了做朋友。';
-    else if(npcLove>=30) result='🌧️ 遗憾结局：你们各自离开，再也没有见过。';
-    else result='💔 悲剧结局：你被伤透了心，从此不再相信爱情。';
-    var html='<div style="text-align:center;font-size:18px;color:#f5c842;margin-bottom:12px;">💌 第17天 · 最终抉择</div>';
-    html+='<div class="pair-line">你的CP：'+npc.name+'（好感度 '+npcLove+'%）</div>';
-    html+='<div class="pair-line">你的综合好感：'+state.love+'%</div>';
-    html+='<div class="pair-line">存活嘉宾：'+state.characters.filter(function(c){return c.alive;}).length+' 人</div>';
-    html+='<div style="margin-top:16px;font-size:20px;color:#f5c842;">'+result+'</div>';
-    showModal('🎬 旅程结束',html,'重新开始',false,function(){location.reload();});
-    renderAll();
+function addChat(who, text, type){
+    var area=document.getElementById('chatArea');
+    var div=document.createElement('div');
+    div.className='chat-msg '+type;
+    if(type==='player'){div.innerHTML='你：'+text;}
+    else if(type==='ai'){div.innerHTML='<span class="name">'+(who||'AI')+'</span>：'+text;}
+    else if(type==='hint'){div.innerHTML='💡 '+text;}
+    else{div.innerHTML='[系统] '+text;}
+    area.appendChild(div);
+    area.scrollTop=area.scrollHeight;
 }
 
-document.getElementById('resetBtn').addEventListener('click',function(){
-    if(confirm('确定重新开始吗？')){location.reload();}
+function clearChat(){document.getElementById('chatArea').innerHTML='';}
+
+function setInputEnabled(enabled){
+    document.getElementById('msgInput').disabled=!enabled;
+    document.getElementById('sendBtn').disabled=!enabled;
+}
+
+function renderHome(){
+    var grid=document.getElementById('gameGrid');grid.innerHTML='';
+    GAMES.forEach(function(g){
+        var div=document.createElement('div');
+        div.className='game-card';
+        div.innerHTML='<span class="icon">'+g.icon+'</span><div class="gname">'+g.name+'</div><div class="gdesc">'+g.desc+'</div><span class="tag">'+g.tag+'</span>';
+        div.onclick=function(){enterGame(g.id);};
+        grid.appendChild(div);
+    });
+}
+
+function enterGame(id){
+    currentGame=id;
+    document.getElementById('homePage').classList.add('hidden');
+    document.getElementById('gamePage').classList.remove('hidden');
+    var g=GAMES.find(function(x){return x.id===id;});
+    document.getElementById('gameTitle').textContent=g.icon+' '+g.name;
+    document.getElementById('gameSub').textContent=g.desc;
+    clearChat();
+    gameState={step:0,history:[],over:false};
+    setInputEnabled(false);
+    document.getElementById('actionBtn').style.display='none';
+    document.getElementById('gameNote').textContent='⏳ AI 正在准备...';
+    startGame(id);
+}
+    function startGame(id){
+    if(id==='detective'){startDetective();}
+    else if(id==='survival'){startSurvival();}
+    else if(id==='rpg'){startRPG();}
+    else if(id==='psych'){startPsych();}
+    else if(id==='love'){startLove();}
+    else if(id==='debate'){startDebate();}
+    else if(id==='seaturtle'){startSeaTurtle();}
+}
+
+// ============================================================
+//  🍲 海龟汤
+// ============================================================
+function startSeaTurtle(){
+    var system = '你是海龟汤游戏的主持人。' +
+        '你会给出一个离奇的故事结局（汤面），玩家通过提问来还原完整故事（汤底）。' +
+        '你只能回答：是、否、无关（跟故事没有关系）。' +
+        '如果玩家直接输入了完整的汤底推理，判断是否正确。' +
+        '汤底必须是一个完整、合理、有逻辑的故事。' +
+        '不要主动透露汤底，不要提示。' +
+        '每次回答后，给出一个简短的提示（可选）。';
+    var user = '请给我一个海龟汤的汤面。不要告诉我汤底。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','🍲 汤面：'+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        gameState.汤底 = null;
+        gameState.step=1;
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 提问还原真相 · AI只能回答是/否/无关';
+    });
+}
+
+function onSeaTurtleInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    var system = msgs[0].content;
+    var check = '玩家输入了完整的汤底推理。请判断是否正确。如果正确，回复"✅ 正确！"并给出完整故事。如果错误，回复"❌ 不对，再想想"并给出一个提示。';
+    var checkMsgs = [{role:'system',content:system},{role:'user',content:'玩家的推理是："'+text+'"\n\n'+check}];
+    callAI(checkMsgs, function(err, reply2){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        if(reply2.indexOf('✅')!==-1 || reply2.indexOf('正确')!==-1){
+            addChat('AI',reply2,'ai');
+            gameState.over=true;
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='🎉 恭喜你猜对了！点击"重新开始"再玩一局';
+            return;
+        }
+        // 普通提问
+        var qMsgs = gameState.history.slice();
+        qMsgs.push({role:'user',content:text});
+        callAI(qMsgs, function(err2, reply3){
+            if(err2){addChat('系统','错误：'+err2,'system');return;}
+            addChat('AI',reply3,'ai');
+            gameState.history.push({role:'user',content:text});
+            gameState.history.push({role:'assistant',content:reply3});
+        });
+    });
+}
+
+// ============================================================
+//  🔍 侦探推理
+// ============================================================
+function startDetective(){
+    var system = '你是一个案件的嫌疑人。你被警察审问。' +
+        '你犯了罪，但你不能直接承认。' +
+        '你要在对话中逐渐露出破绽，但不要主动坦白。' +
+        '每次回答要符合角色设定，像真人一样说话。' +
+        '玩家需要找到你的破绽，迫使你认罪。';
+    var user = '给我一个案件背景和你的角色设定。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','🔍 '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 审问AI嫌疑人，找出真相';
+    });
+}
+
+function onDetectiveInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:text});
+        gameState.history.push({role:'assistant',content:reply});
+        if(reply.indexOf('我认罪')!==-1 || reply.indexOf('我承认')!==-1){
+            addChat('系统','🎉 凶手认罪了！','system');
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='🎉 你破案了！点击"重新开始"再玩一局';
+        }
+    });
+}
+
+// ============================================================
+//  🏔️ 生存冒险
+// ============================================================
+function startSurvival(){
+    var system = '你是一个生存冒险游戏的主持人。' +
+        '你会在荒野中生成随机事件，让玩家选择行动。' +
+        '每个事件有两个选择，会影响玩家的生存状态。' +
+        '玩家的初始状态：生命100，饥饿50，寒冷50。' +
+        '你要根据玩家的选择更新状态，并生成后续事件。' +
+        '游戏目标是生存尽可能多的天数。';
+    var user = '开始游戏。描述玩家的初始场景和第一个事件。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','🏔️ '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        gameState.life=100;gameState.hunger=50;gameState.cold=50;gameState.day=1;
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 输入你的选择（如：A / B）';
+    });
+}
+
+function onSurvivalInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:'我的选择是：'+text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:'我的选择是：'+text});
+        gameState.history.push({role:'assistant',content:reply});
+        if(reply.indexOf('死亡')!==-1 || reply.indexOf('你死了')!==-1){
+            addChat('系统','💀 你死了！游戏结束','system');
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='💀 游戏结束 · 点击"重新开始"再玩一局';
+        }else{gameState.day++;}
+    });
+}
+
+// ============================================================
+//  💬 角色扮演
+// ============================================================
+function startRPG(){
+    var system = '你是一个角色扮演游戏的主持人。' +
+        '玩家可以设定一个角色，你扮演那个角色。' +
+        '根据玩家的设定，生成一个场景，然后让玩家和AI角色对话。' +
+        'AI角色要有独特的性格和说话风格。';
+    var user = '玩家想扮演一个角色。请先询问玩家想扮演什么角色。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','💬 '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 告诉AI你想扮演什么角色';
+    });
+}
+
+function onRPGInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:text});
+        gameState.history.push({role:'assistant',content:reply});
+    });
+}
+
+// ============================================================
+//  🧠 心理测试
+// ============================================================
+function startPsych(){
+    var system = '你是一个心理测试分析师。' +
+        '你要向玩家提出一系列问题，然后根据玩家的回答分析其人格特征。' +
+        '每次问一个问题，等玩家回答后再问下一个。' +
+        '问5个问题后，给出完整的心理分析报告。' +
+        '分析要专业、有趣、有洞察力。';
+    var user = '开始心理测试，问第一个问题。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','🧠 '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        gameState.psychCount=1;
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 回答5个问题，AI会分析你';
+    });
+}
+
+function onPsychInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:text});
+        gameState.history.push({role:'assistant',content:reply});
+        gameState.psychCount++;
+        if(gameState.psychCount>=6){
+            addChat('系统','📊 心理分析完成！查看上方AI的回复','system');
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='📊 分析完成 · 点击"重新开始"再测一次';
+        }
+    });
+}
+
+// ============================================================
+//  💕 恋爱模拟
+// ============================================================
+function startLove(){
+    var system = '你是一个恋爱模拟角色。' +
+        '你是玩家的恋人，温柔、体贴、有点小傲娇。' +
+        '你要记住玩家说过的话，在后续对话中体现出来。' +
+        '好感度初始50，根据玩家的回答增减。' +
+        '每次回复后，在括号里标注好感度变化（如：好感度+2）。' +
+        '如果好感度达到80，表白；低于20，分手。';
+    var user = '你好呀，今天天气真好。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','💕 '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        gameState.love=50;
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💕 好感度：'+gameState.love+' · 你的话会影响感情';
+    });
+}
+
+function onLoveInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:text});
+        gameState.history.push({role:'assistant',content:reply});
+        var loveMatch=reply.match(/好感度[+\-]?(\d+)/);
+        if(loveMatch){gameState.love=parseInt(loveMatch[1]);}
+        else if(reply.indexOf('表白')!==-1){gameState.love=80;}
+        else if(reply.indexOf('分手')!==-1){gameState.love=15;}
+        document.getElementById('gameNote').textContent='💕 好感度：'+gameState.love+' · 你的话会影响感情';
+        if(gameState.love>=80){addChat('系统','🎉 对方表白了！','system');setInputEnabled(false);}
+        else if(gameState.love<20){addChat('系统','💔 对方离开了...','system');setInputEnabled(false);}
+    });
+}
+
+// ============================================================
+//  ⚖️ 谈判挑战
+// ============================================================
+function startDebate(){
+    var system = '你是一个谈判对手。' +
+        '你要和玩家进行一场谈判。' +
+        '你的立场和玩家对立。' +
+        '你要通过逻辑和话术试图说服玩家。' +
+        '每次回复要逻辑清晰、有说服力。' +
+        '如果玩家说服了你，你认输。如果玩家逻辑混乱，你指出漏洞。' +
+        '你的目标是不被玩家说服。';
+    var user = '开始谈判。给出你的立场和开场白。';
+    var msgs = [{role:'system',content:system},{role:'user',content:user}];
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');setInputEnabled(true);return;}
+        addChat('AI','⚖️ '+reply,'ai');
+        gameState.history=[{role:'system',content:system},{role:'assistant',content:reply}];
+        setInputEnabled(true);
+        document.getElementById('gameNote').textContent='💡 说服AI对手，或者被AI说服';
+    });
+}
+
+function onDebateInput(text){
+    var msgs = gameState.history.slice();
+    msgs.push({role:'user',content:text});
+    callAI(msgs, function(err, reply){
+        if(err){addChat('系统','错误：'+err,'system');return;}
+        addChat('AI',reply,'ai');
+        gameState.history.push({role:'user',content:text});
+        gameState.history.push({role:'assistant',content:reply});
+        if(reply.indexOf('我认输')!==-1 || reply.indexOf('你说服了我')!==-1){
+            addChat('系统','🎉 你赢了！','system');
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='🎉 你赢了 · 点击"重新开始"再玩一局';
+        }else if(reply.indexOf('你输了')!==-1 || reply.indexOf('你被说服了')!==-1){
+            addChat('系统','😤 你输了！','system');
+            setInputEnabled(false);
+            document.getElementById('gameNote').textContent='😤 你输了 · 点击"重新开始"再玩一局';
+        }
+    });
+}
+    // ============================================================
+//  输入分发器
+// ============================================================
+document.getElementById('sendBtn').addEventListener('click', function() {
+    if (isAILoading) return;
+    var input = document.getElementById('msgInput');
+    var text = input.value.trim();
+    if (!text) return;
+    input.value = '';
+    addChat('你', text, 'player');
+
+    if (currentGame === 'detective') onDetectiveInput(text);
+    else if (currentGame === 'survival') onSurvivalInput(text);
+    else if (currentGame === 'rpg') onRPGInput(text);
+    else if (currentGame === 'psych') onPsychInput(text);
+    else if (currentGame === 'love') onLoveInput(text);
+    else if (currentGame === 'debate') onDebateInput(text);
+    else if (currentGame === 'seaturtle') onSeaTurtleInput(text);
 });
 
-renderAll();
+document.getElementById('msgInput').addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') document.getElementById('sendBtn').click();
+});
+
+document.getElementById('backHomeBtn').addEventListener('click', function() {
+    document.getElementById('gamePage').classList.add('hidden');
+    document.getElementById('homePage').classList.remove('hidden');
+    setInputEnabled(false);
+});
+
+document.getElementById('resetGameBtn').addEventListener('click', function() {
+    if (currentGame) {
+        clearChat();
+        gameState = {step:0,history:[],over:false};
+        setInputEnabled(false);
+        startGame(currentGame);
+        document.getElementById('gameNote').textContent='🔄 重新开始...';
+    }
+});
+
+renderHome();
 </script>
 </body>
 </html>
