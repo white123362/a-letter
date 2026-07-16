@@ -1,416 +1,228 @@
-<!DOCTYPE html>
-<html>
-<head>
-<meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-<title>密室杀人 · 推理</title>
-<style>
-*{margin:0;padding:0;box-sizing:border-box;}
-body{background:#0a0a0a;color:#ddd;font-family:'Segoe UI',Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;}
-.box{background:#121212;padding:24px;border-radius:16px;max-width:100%;width:100%;border:1px solid #2a2a2a;}
-h1{color:#f5c842;text-align:center;font-size:24px;margin-bottom:4px;}
-.sub{font-size:14px;color:#888;text-align:center;margin-bottom:16px;border-bottom:1px solid #1a1a2a;padding-bottom:12px;}
-.stats{display:flex;justify-content:space-between;margin-bottom:12px;gap:8px;}
-.stat-box{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:13px;}
-.stat-box.purity{background:#0a1a2a;border:1px solid #2a5a6a;}
-.stat-box.purity .val{color:#4fc3f7;}
-.stat-box.corruption{background:#1a0a0a;border:1px solid #6a2a2a;}
-.stat-box.corruption .val{color:#ff6b6b;}
-.stat-box.balance{background:#1a1a0a;border:1px solid #5a5a2a;}
-.stat-box.balance .val{color:#f5c842;}
-.death-count{font-size:13px;color:#ff6b6b;text-align:center;margin-bottom:10px;}
-.scene{background:#0a0a18;padding:16px;border-radius:12px;border-left:3px solid #f5c842;margin:12px 0;line-height:1.8;font-size:16px;min-height:110px;}
-.scene .hl{color:#f5c842;}
-.scene .dr{color:#ff6b6b;}
-.scene .gray{color:#888;}
-.scene .clue-highlight{color:#4fc3f7;font-weight:bold;}
-.options{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
-.options button{background:#1a1a2e;border:1px solid #2a3a5e;color:#eee;padding:14px 16px;border-radius:12px;text-align:left;font-size:16px;cursor:pointer;transition:0.2s;}
-.options button:hover{background:#252545;border-color:#f5c842;}
-.options button:disabled{opacity:0.3;cursor:not-allowed;}
-.msg{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #1a2a3a;font-size:14px;color:#a8d8ea;margin:12px 0;min-height:40px;}
-.msg .ok{color:#4caf50;font-weight:bold;}
-.msg .fail{color:#ff6b6b;font-weight:bold;}
-.input-area{display:flex;gap:10px;margin:12px 0;flex-wrap:wrap;}
-.input-area input{flex:1;min-width:150px;padding:14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:16px;}
-.input-area input:focus{outline:none;border-color:#f5c842;}
-.input-area button{background:#f5c842;border:none;color:#1a1a2e;padding:14px 24px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;}
-.input-area button:hover{background:#ffd966;}
-.btn-next{background:#f5c842;border:none;color:#1a1a2e;padding:16px;border-radius:30px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;transition:0.2s;}
-.btn-next:hover{background:#ffd966;}
-.btn-next:disabled{opacity:0.3;cursor:not-allowed;}
-.btn-reset{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;padding:12px;border-radius:20px;font-size:15px;cursor:pointer;width:100%;margin-top:10px;transition:0.2s;}
-.btn-reset:hover{border-color:#ff6b6b;color:#ff6b6b;}
-.hidden{display:none;}
-.image-box{background:#0a0a14;border:1px dashed #2a3a5e;border-radius:12px;padding:12px;text-align:center;margin:12px 0;}
-.image-box img{max-width:100%;border-radius:8px;max-height:250px;}
-.image-box .cap{color:#888;font-size:12px;margin-top:4px;}
-.death-screen{background:#1a0000;border:3px solid #ff0000;border-radius:12px;padding:24px;text-align:center;margin:12px 0;}
-.death-screen .icon{font-size:60px;}
-.death-screen .title{color:#ff0000;font-size:24px;font-weight:bold;margin:8px 0;}
-.death-screen .desc{color:#ff6b6b;font-size:16px;line-height:1.8;}
-.death-screen .btn-retry{background:#ff0000;border:none;color:#fff;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:16px;}
-.death-screen .btn-retry:hover{background:#cc0000;}
-.end-icon{text-align:center;font-size:44px;padding:12px 0 4px 0;}
-.end-title{text-align:center;font-size:20px;color:#f5c842;}
-.end-desc{text-align:center;font-size:14px;color:#aaa;padding:12px;line-height:1.8;}
-.clue-box{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #2a3a5e;margin:8px 0;font-size:14px;}
-.clue-box .cl{color:#f5c842;}
-</style>
-</head>
-<body>
-<div class="box">
-<h1>🔪 密室杀人 · 推理</h1>
-<div class="stats">
-<div class="stat-box purity">🕊️ 纯洁度 <span class="val" id="purityVal">50</span></div>
-<div class="stat-box corruption">🌑 污染度 <span class="val" id="corruptVal">50</span></div>
-<div class="stat-box balance">⚖️ 平衡 <span class="val" id="balanceVal">0</span></div>
-</div>
-<div class="death-count">💀 死亡次数：<span id="deathCount">0</span></div>
-<div class="sub">第 <span id="chap">1</span> 章 · <span id="sname">密室</span></div>
-<div class="scene" id="scene"></div>
-<div id="imgBox" class="image-box hidden">
-<img id="imgShow" src="72776.jpeg" alt="物证">
-<div class="cap" id="imgCap">关键物证</div>
-</div>
-<div id="clueBox" class="clue-box hidden">
-🔍 已收集线索：<span id="clueList" style="color:#f5c842;"></span>
-</div>
-<div id="options" class="options"></div>
-<div id="inputArea" class="input-area hidden">
-<input type="text" id="answerInput" placeholder="输入你的推理...">
-<button id="submitAnswer">提交推理</button>
-</div>
-<div class="msg" id="msg">点击选项推进剧情</div>
-<button class="btn-next" id="nextBtn" disabled>继续</button>
-<button class="btn-reset" id="resetBtn">重新开始</button>
-</div>
+import random
+import time
+from dataclasses import dataclass, field
+from typing import List, Dict, Optional
 
-<script>
-var purity = 50;
-var corruption = 50;
-var deathCount = 0;
-var currentSceneIdx = 0;
-var collectedClues = [];
-var gameOver = false;
-var wrongAttempts = 0;
-var maxWrongAttempts = 3;
-var currentPuzzle = null;
-var puzzleCompleted = {method:false,killer:false,evidence:false};
+# ---------- 数据模型 ----------
+@dataclass
+class Character:
+    name: str
+    age: int
+    gender: str  # "男" / "女"
+    personality: str
+    occupation: str
+    relationship_status: str = "已分手"  # 已婚 / 已分手 / 分居中
+    purpose: str = "复合"                # 复合 / 告别 / 寻找答案
+    issues: str = ""
+    partner: Optional['Character'] = None
+    affection: Dict[str, int] = field(default_factory=dict)  # 对其他人好感度
+    is_alive: bool = True
 
-var puzzles = {
-method: {
-question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span>',
-answers: ['冰线','冰块','冰','冷冻','结冰','冰绳','水线','冰丝'],
-correctMsg: '✅ 正确！凶手用冰线从门缝穿过，拉动门闩后冰融化成水。这就是密室手法！',
-wrongMsg: '❌ 再想想。'
-},
-killer: {
-question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤。<br><br><span class="gray">❓ 凶手是谁？</span>',
-answers: ['店员','咖啡馆店员','那个店员','女店员','咖啡店员','咖啡店店员','服务员'],
-correctMsg: '✅ 正确！死者手里攥着的黄色布料，正是店员围裙上的。她就是凶手！',
-wrongMsg: '❌ 再想想。'
-},
-evidence: {
-question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span>',
-answers: ['黄色布料','伤疤','黄色布片','布片','布料','围裙碎片','黄色布','黄布'],
-correctMsg: '✅ 正确！黄色布料是死者从凶手身上扯下的，这就是铁证！',
-wrongMsg: '❌ 再想想。'
-}
-};
+@dataclass
+class Couple:
+    char_a: Character
+    char_b: Character
 
-var puzzleList = ['method','killer','evidence'];
-var puzzleIndex = 0;
+    def __post_init__(self):
+        self.char_a.partner = self.char_b
+        self.char_b.partner = self.char_a
+        self.char_a.affection[self.char_b.name] = 50
+        self.char_b.affection[self.char_a.name] = 50
 
-var scenes = [
-{
-ch:1,nm:'发现尸体',
-tx:'你赶到废弃画廊时，警笛声已经远去。<br><br>画家死了。<br><br>他倒在画廊中央，胸口插着一把刀。门从内侧反锁，钥匙在他的口袋里。窗户紧闭，从内侧锁死。<br><br><span class="dr">这是一个完美的密室。</span><br><br><span class="gray">你注意到：</span><br>· 地上有一小滩水渍<br>· 死者右手紧握着一片<span class="clue-highlight">黄色布料</span><br>· 门缝里有一道细小的划痕',
-img:'72776.jpeg',cap:'案发现场 · 密室',
-op:[
-{lb:'🕊️ "他死前在保护什么……"',nx:1,cl:'画家的死有隐情',purity:10,corrupt:-5},
-{lb:'🔍 "我要仔细检查现场。"',nx:1,cl:'密室现场',purity:5,corrupt:0},
-{lb:'🌑 "凶手一定还在附近。"',nx:1,cl:null,purity:-5,corrupt:10},
-]
-},
-{
-ch:1,nm:'调查线索',
-tx:'你仔细检查现场。<br><br>你发现：<br>· 门缝上有细小的划痕，像是被线勒过<br>· 地上的水渍已经快干了<br>· 死者手里那片黄色布料，和咖啡馆店员的围裙材质一样<br>· 你想起——她的手腕上有一道旧伤疤<br><br><span class="clue-highlight">线索已收集：</span> 水渍 · 划痕 · 黄色布料 · 伤疤',
-img:null,
-op:[
-{lb:'🔍 "我明白了……这是一个诡计。"',nx:2,cl:'密室手法',purity:5,corrupt:0},
-{lb:'🌑 "凶手是那个店员。"',nx:2,cl:'凶手身份',purity:-5,corrupt:10},
-]
-},
-{
-ch:1,nm:'推理开始',
-tx:'你站在密室中央，看着地上的水渍和门缝上的划痕。<br><br><span class="hl">现在，你需要自己推理出真相。</span><br><br>你只有3次机会。如果推理错误超过3次，你将永远找不到真相。<br><br><span class="gray">点击"继续"开始推理。</span>',
-img:null,
-op:[],
-isPuzzleTrigger:true
-},
-{
-ch:1,nm:'推理中',
-tx:'',
-img:null,
-op:[],
-isPuzzleActive:true
-},
-{
-ch:1,nm:'真相揭晓',
-tx:'你推理出了真相。<br><br>凶手用<span class="hl">冰线</span>穿过门缝，拉动门闩锁住门。冰融化后变成水，所以现场只有水渍。<br><br>凶手是<span class="hl">咖啡馆店员</span>。死者手里的<span class="hl">黄色布料</span>就是证据。<br><br><span class="gray">画家发现她是组织派来的卧底，所以被灭口了。</span><br><br><span style="color:#f5c842;">🎉 密室杀人案告破！</span>',
-img:null,
-op:[],
-end:true
-}
-];
+# ---------- 全局状态 ----------
+class GameState:
+    def __init__(self, characters: List[Character], couples: List[Couple]):
+        self.characters = characters
+        self.couples = couples
+        self.day = 0
+        self.will_cards: Dict[str, List[str]] = {c.name: [] for c in characters}
+        self.mood_board: Dict[str, List[str]] = {c.name: [] for c in characters}
+        self.ended = False
+        self.final_choices: Dict[str, bool] = {}
 
-var endings = [
-{ti:'🌅 光明结局',de:'你找出了真相，画家得以安息。你决定继续追查向日葵组织，为所有受害者寻求正义。',em:'🌅'},
-{ti:'🌑 黑暗结局',de:'你得知了太多秘密。组织找到了你。第二天，你消失了。警局档案里再也没有你的名字。',em:'🌑'},
-{ti:'⚖️ 平衡结局',de:'你选择了沉默。这个案子成为悬案，但你活了下来。有些真相，也许永远不应该被揭开。',em:'⚖️'},
-{ti:'💀 死亡结局',de:'你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。',em:'💀'}
-];
+    def advance_day(self):
+        self.day += 1
 
-var sceneEl = document.getElementById('scene');
-var msgEl = document.getElementById('msg');
-var optEl = document.getElementById('options');
-var inputArea = document.getElementById('inputArea');
-var answerInput = document.getElementById('answerInput');
-var submitBtn = document.getElementById('submitAnswer');
-var nextBtn = document.getElementById('nextBtn');
-var resetBtn = document.getElementById('resetBtn');
-var imgBox = document.getElementById('imgBox');
-var imgShow = document.getElementById('imgShow');
-var imgCap = document.getElementById('imgCap');
-var clueBox = document.getElementById('clueBox');
-var clueList = document.getElementById('clueList');
+    def record_will(self, name: str, choice: str):
+        if name in self.will_cards:
+            self.will_cards[name].append(choice)
 
-function renderScene() {
-var s = scenes[currentSceneIdx];
-if (!s) return;
+    def record_mood(self, name: str, mood: str):
+        if name in self.mood_board:
+            self.mood_board[name].append(mood)
 
-document.getElementById('chap').textContent = s.ch || 1;
-document.getElementById('sname').textContent = s.nm || '密室';
+    def get_mood_summary(self) -> Dict[str, int]:
+        summary = {}
+        for name, moods in self.mood_board.items():
+            if moods:
+                summary[name] = moods[-1]  # 只显示最新心情
+        return summary
 
-sceneEl.innerHTML = s.tx || '';
+# ---------- 数据生成 ----------
+def create_default_characters():
+    # 女方角色（沿用你的设定）
+    females = [
+        Character("望舒", 25, "女", "表面温柔，内心阴暗", "游戏博主", "已分手", "复合"),
+        Character("梦汝", 26, "女", "外表柔弱，控制欲极强", "舞者", "已分手", "告别"),
+        Character("思瑶", 25, "女", "清纯人设，内心阴狠", "歌手", "已分手", "复合"),
+        Character("郁瑾", 24, "女", "仁心表象，私心极重", "外科医生", "已分手", "复合"),
+        Character("桃子", 24, "女", "温文尔雅，心胸狭隘", "声乐老师", "已分手", "复合"),
+    ]
+    # 男方角色（随机生成 5 位）
+    male_names = ["紫苑", "姜赫", "陆屿", "周野", "谢衍"]
+    personalities = ["沉默", "急躁", "温柔但懦弱", "精明", "自负"]
+    occupations = ["CEO", "摄影师", "律师", "自由职业", "设计师"]
+    males = []
+    for i, name in enumerate(male_names):
+        males.append(Character(
+            name=name,
+            age=random.randint(24, 30),
+            gender="男",
+            personality=personalities[i % len(personalities)],
+            occupation=occupations[i % len(occupations)],
+            relationship_status="已分手",
+            purpose=random.choice(["复合", "告别", "寻找答案"]),
+            issues="性格不合 / 沟通问题 / 前任介入" if i > 0 else "发现自己不适合谈恋爱"
+        ))
+    return females, males
 
-if (s.img) {
-imgBox.classList.remove('hidden');
-imgShow.src = s.img;
-imgCap.textContent = s.cap || '关键物证';
-} else {
-imgBox.classList.add('hidden');
-}
+def pair_couples(females: List[Character], males: List[Character]) -> List[Couple]:
+    random.shuffle(males)  # 随机配对
+    couples = []
+    for f, m in zip(females, males):
+        # 给双方设置性格标签，方便剧情生成
+        f.issues = f"{m.name} 太闷了，不够懂我" if random.random() > 0.5 else "对未来规划不一致"
+        m.issues = f"{f.name} 控制欲太强" if random.random() > 0.5 else "经常吵架，累了"
+        couples.append(Couple(f, m))
+    return couples
 
-if (collectedClues.length > 0) {
-clueBox.classList.remove('hidden');
-clueList.textContent = collectedClues.join(' · ');
-} else {
-clueBox.classList.add('hidden');
-}
+# ---------- 每日流程 ----------
+def day_loop(state: GameState):
+    print(f"\n{'='*50}")
+    print(f"第 {state.day} 天")
+    print(f"{'='*50}")
 
-optEl.innerHTML = '';
-inputArea.classList.add('hidden');
+    # 显示当前CP
+    print("\n【当前配对】")
+    for c in state.couples:
+        print(f"  {c.char_a.name} ♥ {c.char_b.name}")
 
-if (s.isPuzzleTrigger) {
-nextBtn.disabled = false;
-nextBtn.textContent = '▶ 开始推理';
-nextBtn.onclick = startPuzzle;
-msgEl.innerHTML = '💡 点击"开始推理"进入推理环节';
-return;
-}
+    # 意愿卡填写（模拟每个角色）
+    print("\n【意愿卡填写】")
+    for char in state.characters:
+        choice = random.choice(["是", "否", "不确定"])
+        state.record_will(char.name, choice)
+        print(f"  {char.name}：{choice}")
 
-if (s.isPuzzleActive) {
-showPuzzle();
-return;
-}
+    # 心情晴雨表
+    print("\n【心情晴雨表】")
+    moods = ["😊", "😐", "😔", "😡", "😢"]
+    for char in state.characters:
+        mood = random.choice(moods)
+        state.record_mood(char.name, mood)
+        print(f"  {char.name}：{mood}")
 
-if (s.op && s.op.length > 0) {
-s.op.forEach(function(o, i) {
-var btn = document.createElement('button');
-btn.textContent = o.lb;
-btn.onclick = function() { selectOption(i); };
-optEl.appendChild(btn);
-});
-nextBtn.disabled = true;
-msgEl.innerHTML = '点击选项推进剧情';
-} else if (s.end) {
-msgEl.innerHTML = '🎉 <span class="ok">案件告破！</span> 你推理出了真相。';
-nextBtn.disabled = false;
-nextBtn.textContent = '📖 查看结局';
-nextBtn.onclick = showEnding;
-} else {
-nextBtn.disabled = true;
-}
+    # 随机事件（模拟剧情推进）
+    trigger_random_event(state)
 
-updateStats();
-}
+    # 采访环节
+    print("\n【采访】")
+    for char in random.sample(state.characters, min(3, len(state.characters))):
+        print(f"  Q：{char.name}，今天有什么想对对方说的？")
+        print(f"  A：……（{char.name} 沉默了片刻，没有回答）")
 
-function startPuzzle() {
-puzzleIndex = 0;
-puzzleCompleted = {method:false,killer:false,evidence:false};
-currentSceneIdx = 3;
-renderScene();
-}
+    # 检查死亡/退出条件
+    check_game_over(state)
 
-function showPuzzle() {
-if (puzzleIndex >= puzzleList.length) {
-currentSceneIdx = 4;
-renderScene();
-return;
-}
+def trigger_random_event(state: GameState):
+    events = [
+        "你们在营地散步时，遇到了前任。",
+        "有人酒后吐真言，爆出了旧事。",
+        "下雨了，你和她共撑一把伞。",
+        "节目组安排了任务：互换身份演戏。",
+        "其中一位嘉宾情绪崩溃，当场离场。",
+        "有人在房车里发现了一封旧情书。",
+        "你收到了一条匿名消息。",
+    ]
+    print(f"\n【随机事件】{random.choice(events)}")
 
-var id = puzzleList[puzzleIndex];
-var p = puzzles[id];
-currentPuzzle = p;
+def check_game_over(state: GameState):
+    # 模拟死亡触发（随机概率）
+    if random.random() < 0.05 and state.day > 10:
+        victim = random.choice(state.characters)
+        victim.is_alive = False
+        print(f"\n⚠️ 突发悲剧：{victim.name} 因意外/冲突死亡。")
+        state.ended = True
 
-sceneEl.innerHTML = p.question;
-inputArea.classList.remove('hidden');
-answerInput.value = '';
-answerInput.placeholder = '输入你的推理...';
-msgEl.innerHTML = '🔍 输入答案（剩余机会：' + (maxWrongAttempts - wrongAttempts) + '次）';
-nextBtn.disabled = true;
-optEl.innerHTML = '';
-updateStats();
-}
+# ---------- 抉择日 ----------
+def final_choice_day(state: GameState):
+    print("\n" + "="*50)
+    print("第17天 · 最终抉择")
+    print("="*50)
 
-submitBtn.addEventListener('click', function() {
-if (gameOver) return;
-if (!currentPuzzle) return;
+    for couple in state.couples:
+        a = couple.char_a
+        b = couple.char_b
+        # 模拟各自决定（根据好感度+随机）
+        a_decide = random.choice([True, False])
+        b_decide = random.choice([True, False])
+        state.final_choices[a.name] = a_decide
+        state.final_choices[b.name] = b_decide
 
-var input = answerInput.value.trim();
-if (!input) {
-msgEl.innerHTML = '⚠️ 请输入你的推理答案';
-return;
-}
+        print(f"\n【{a.name} & {b.name}】")
+        if a_decide and b_decide:
+            print("  ✅ 双方下车 → 复合/重新开始")
+        elif a_decide or b_decide:
+            print("  ⚠️ 一方下车 → 一方想挽回，一方已离开")
+        else:
+            print("  ❌ 双方不下车 → 各自分开")
 
-var isCorrect = false;
-currentPuzzle.answers.forEach(function(a) {
-if (input.toLowerCase().indexOf(a.toLowerCase()) !== -1) {
-isCorrect = true;
-}
-});
+def show_final_summary(state: GameState):
+    print("\n" + "="*50)
+    print("【最终统计】")
+    print("="*50)
+    print("\n意愿卡趋势（最后3天）:")
+    for name, cards in state.will_cards.items():
+        if len(cards) >= 3:
+            print(f"  {name}: {cards[-3:]}")
 
-if (isCorrect) {
-msgEl.innerHTML = '✅ <span class="ok">' + currentPuzzle.correctMsg + '</span>';
-inputArea.classList.add('hidden');
-var id = puzzleList[puzzleIndex];
-puzzleCompleted[id] = true;
-puzzleIndex++;
-wrongAttempts = 0;
-setTimeout(function() {
-showPuzzle();
-}, 1200);
-} else {
-wrongAttempts++;
-var remaining = maxWrongAttempts - wrongAttempts;
-msgEl.innerHTML = '❌ <span class="fail">' + currentPuzzle.wrongMsg + '</span> 剩余机会：' + remaining;
-answerInput.value = '';
+    print("\n心情晴雨表:")
+    for name, moods in state.mood_board.items():
+        if moods:
+            print(f"  {name}: {moods[-1]}")
 
-if (wrongAttempts >= maxWrongAttempts) {
-gameOver = true;
-deathCount++;
-document.getElementById('deathCount').textContent = deathCount;
-showDeath('推理失败 · 组织发现了你', '你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。');
-}
-}
-});
+# ---------- 主循环 ----------
+def main():
+    print("\n" + "="*50)
+    print("【恋综模拟器 · 18天旅程】")
+    print("="*50)
 
-answerInput.addEventListener('keydown', function(e) {
-if (e.key === 'Enter') {
-submitBtn.click();
-}
-});
+    females, males = create_default_characters()
+    couples = pair_couples(females, males)
 
-function selectOption(idx) {
-var s = scenes[currentSceneIdx];
-var o = s.op[idx];
-if (!o) return;
+    state = GameState(females + males, couples)
 
-var btns = document.querySelectorAll('#options button');
-btns.forEach(function(b) { b.disabled = true; });
+    # 第0天 · 前期拍摄
+    print("\n第0天 · 前期拍摄")
+    for char in state.characters:
+        print(f"  {char.name}（{char.age}岁 · {char.occupation}）：{char.personality}")
 
-if (o.cl) {
-if (collectedClues.indexOf(o.cl) === -1) {
-collectedClues.push(o.cl);
-msgEl.innerHTML = '🔍 <span class="ok">获得线索：' + o.cl + '</span>';
-}
-}
+    # 第1-16天
+    for _ in range(1, 17):
+        if state.ended:
+            break
+        state.advance_day()
+        day_loop(state)
+        time.sleep(0.3)  # 为了让输出可读
 
-if (o.purity) purity = Math.min(100, Math.max(0, purity + o.purity));
-if (o.corrupt) corruption = Math.min(100, Math.max(0, corruption + o.corrupt));
+    # 第17天 · 抉择
+    final_choice_day(state)
 
-if (o.nx !== undefined) {
-currentSceneIdx = o.nx;
-setTimeout(function() { renderScene(); }, 500);
-}
+    # 第18天 · 返程 + 总结
+    print("\n第18天 · 返程/后采")
+    show_final_summary(state)
 
-updateStats();
-}
+    print("\n【旅程结束】")
 
-function showDeath(title, desc) {
-sceneEl.innerHTML = '<div class="death-screen"><div class="icon">💀</div><div class="title">' + title + '</div><div class="desc">' + desc + '</div><button class="btn-retry" onclick="retryFromCheckpoint()">🔄 从检查点重试</button></div>';
-optEl.innerHTML = '';
-inputArea.classList.add('hidden');
-msgEl.innerHTML = '💀 <span class="fail">你死了。</span>';
-nextBtn.disabled = true;
-}
-
-function retryFromCheckpoint() {
-currentSceneIdx = 2;
-puzzleIndex = 0;
-wrongAttempts = 0;
-gameOver = false;
-puzzleCompleted = {method:false,killer:false,evidence:false};
-renderScene();
-}
-
-function showEnding() {
-var balance = purity - corruption;
-var endingIdx = 0;
-if (balance >= 20) endingIdx = 0;
-else if (balance <= -20) endingIdx = 1;
-else if (Math.abs(balance) < 10) endingIdx = 2;
-else endingIdx = 3;
-
-var e = endings[endingIdx];
-sceneEl.innerHTML = '<div class="end-icon">' + e.em + '</div><div class="end-title">' + e.ti + '</div><div class="end-desc">' + e.desc + '</div>';
-optEl.innerHTML = '';
-inputArea.classList.add('hidden');
-msgEl.innerHTML = '🏁 <span class="ok">游戏结束</span>';
-nextBtn.disabled = true;
-nextBtn.textContent = '🔚 已完结';
-gameOver = true;
-}
-
-function updateStats() {
-document.getElementById('purityVal').textContent = purity;
-document.getElementById('corruptVal').textContent = corruption;
-document.getElementById('balanceVal').textContent = purity - corruption;
-document.getElementById('deathCount').textContent = deathCount;
-}
-
-function resetGame() {
-purity = 50;
-corruption = 50;
-deathCount = 0;
-currentSceneIdx = 0;
-collectedClues = [];
-gameOver = false;
-wrongAttempts = 0;
-puzzleIndex = 0;
-puzzleCompleted = {method:false,killer:false,evidence:false};
-currentPuzzle = null;
-nextBtn.textContent = '继续';
-nextBtn.onclick = null;
-renderScene();
-updateStats();
-}
-
-resetBtn.addEventListener('click', resetGame);
-renderScene();
-updateStats();
-</script>
-</body>
-</html>
+if __name__ == "__main__":
+    main()
