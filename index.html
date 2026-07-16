@@ -1,0 +1,328 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>🏠 密室逃脱</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: #1a1a2e;
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .game-container {
+            background: #16213e;
+            padding: 30px;
+            border-radius: 20px;
+            box-shadow: 0 20px 40px rgba(0,0,0,0.6);
+            max-width: 500px;
+            width: 100%;
+            text-align: center;
+            color: #eee;
+        }
+        h1 {
+            font-size: 28px;
+            margin-bottom: 10px;
+            color: #f5c842;
+        }
+        .scene {
+            background: #0f3460;
+            padding: 20px;
+            border-radius: 12px;
+            margin: 20px 0;
+            min-height: 120px;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            font-size: 18px;
+            line-height: 1.6;
+        }
+        .scene .emoji-big {
+            font-size: 48px;
+            margin-bottom: 8px;
+        }
+        .items {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 12px;
+            justify-content: center;
+            margin: 16px 0;
+        }
+        .item-btn {
+            background: #1a3a5c;
+            border: none;
+            color: #fff;
+            padding: 12px 20px;
+            border-radius: 30px;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            box-shadow: 0 4px 0 #0a1a2e;
+        }
+        .item-btn:hover {
+            transform: translateY(-2px);
+            background: #254e77;
+        }
+        .item-btn:active {
+            transform: translateY(2px);
+            box-shadow: 0 2px 0 #0a1a2e;
+        }
+        .item-btn:disabled {
+            opacity: 0.4;
+            transform: none;
+            box-shadow: 0 4px 0 #0a1a2e;
+            cursor: not-allowed;
+        }
+        .inventory {
+            background: #0a1a2e;
+            padding: 12px;
+            border-radius: 30px;
+            margin: 16px 0;
+            font-size: 15px;
+            border: 1px dashed #f5c842;
+        }
+        .inventory span {
+            color: #f5c842;
+            font-weight: bold;
+        }
+        .input-area {
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            margin-top: 16px;
+            flex-wrap: wrap;
+        }
+        .input-area input {
+            padding: 10px 16px;
+            border-radius: 30px;
+            border: none;
+            width: 160px;
+            font-size: 16px;
+            text-align: center;
+            background: #0f3460;
+            color: #fff;
+            border: 1px solid #f5c842;
+        }
+        .input-area input::placeholder {
+            color: #888;
+        }
+        .input-area button {
+            background: #f5c842;
+            border: none;
+            padding: 10px 24px;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 16px;
+            cursor: pointer;
+            transition: 0.2s;
+            color: #1a1a2e;
+        }
+        .input-area button:hover {
+            background: #ffd966;
+        }
+        .reset-btn {
+            margin-top: 20px;
+            background: #e94560;
+            border: none;
+            color: #fff;
+            padding: 10px 28px;
+            border-radius: 30px;
+            font-size: 15px;
+            cursor: pointer;
+            transition: 0.2s;
+        }
+        .reset-btn:hover {
+            background: #c73652;
+        }
+        .message {
+            margin-top: 14px;
+            font-size: 15px;
+            min-height: 24px;
+            color: #a8d8ea;
+        }
+    </style>
+</head>
+<body>
+<div class="game-container">
+    <h1>🔐 密室逃脱</h1>
+    <div class="scene" id="sceneDisplay">
+        <div class="emoji-big">📚</div>
+        <div>你在一间古老的书房里。<br>墙上挂着一幅画，桌上有一本书。</div>
+    </div>
+
+    <div class="items" id="actionButtons"></div>
+
+    <div class="inventory" id="inventoryDisplay">🎒 背包：<span>空</span></div>
+
+    <div class="input-area" id="passwordArea">
+        <input type="text" id="passwordInput" placeholder="输入密码" maxlength="10">
+        <button id="passwordBtn">🔑 解锁</button>
+    </div>
+
+    <div class="message" id="messageDisplay">💡 点击物品探索...</div>
+    <button class="reset-btn" id="resetBtn">🔄 重新开始</button>
+</div>
+
+<script>
+    const state = {
+        hasKey: false,
+        hasNote: false,
+        doorUnlocked: false,
+        bookRead: false,
+        paintingMoved: false,
+        gameOver: false,
+    };
+
+    function updateUI() {
+        const scene = document.getElementById('sceneDisplay');
+        const inv = document.getElementById('inventoryDisplay');
+        const msg = document.getElementById('messageDisplay');
+        const btns = document.getElementById('actionButtons');
+
+        let items = [];
+        if (state.hasKey) items.push('🔑 钥匙');
+        if (state.hasNote) items.push('📄 纸条');
+        inv.innerHTML = `🎒 背包：<span>${items.length ? items.join('、') : '空'}</span>`;
+
+        btns.innerHTML = '';
+        if (state.gameOver) {
+            scene.innerHTML = `<div class="emoji-big">🎉</div><div>你逃出去了！<br>🎊 恭喜通关！</div>`;
+            document.getElementById('passwordArea').style.display = 'none';
+            return;
+        }
+
+        let sceneHTML = '';
+        let btnArray = [];
+
+        if (!state.paintingMoved) {
+            sceneHTML = `<div class="emoji-big">🖼️</div><div>墙上有一幅落灰的油画，<br>似乎可以推开。</div>`;
+            btnArray.push({ label: '🖼️ 查看油画', action: 'painting' });
+        } else if (!state.bookRead) {
+            sceneHTML = `<div class="emoji-big">📖</div><div>书桌上放着一本旧书，<br>书页间好像夹着什么东西。</div>`;
+            btnArray.push({ label: '📖 翻阅书籍', action: 'book' });
+        } else if (!state.hasKey) {
+            sceneHTML = `<div class="emoji-big">🔍</div><div>你在书桌抽屉里<br>发现了一把生锈的钥匙。</div>`;
+            btnArray.push({ label: '🔑 拿走钥匙', action: 'key' });
+        } else if (!state.doorUnlocked) {
+            sceneHTML = `<div class="emoji-big">🚪</div><div>一扇厚重的木门，<br>上面有个密码锁（提示：纸条上的数字）</div>`;
+            btnArray.push({ label: '🔍 查看门锁', action: 'door' });
+        } else {
+            sceneHTML = `<div class="emoji-big">🚪</div><div>门已经打开了！<br>你大步走向自由！</div>`;
+            btnArray.push({ label: '🚶 走出去', action: 'exit' });
+        }
+
+        scene.innerHTML = sceneHTML;
+        btnArray.forEach(b => {
+            const btn = document.createElement('button');
+            btn.className = 'item-btn';
+            btn.textContent = b.label;
+            btn.onclick = () => handleAction(b.action);
+            btns.appendChild(btn);
+        });
+
+        const pwdArea = document.getElementById('passwordArea');
+        if (!state.gameOver && !state.doorUnlocked && state.hasKey && state.hasNote) {
+            pwdArea.style.display = 'flex';
+        } else {
+            pwdArea.style.display = 'none';
+        }
+    }
+
+    function handleAction(action) {
+        if (state.gameOver) return;
+        const msg = document.getElementById('messageDisplay');
+
+        switch (action) {
+            case 'painting':
+                if (!state.paintingMoved) {
+                    state.paintingMoved = true;
+                    msg.textContent = '🖼️ 你推开油画，发现后面藏着一张纸条！';
+                    state.hasNote = true;
+                }
+                break;
+            case 'book':
+                if (!state.bookRead && state.paintingMoved) {
+                    state.bookRead = true;
+                    msg.textContent = '📖 书中夹着一张泛黄的纸条，上面写着："密码是 1984"';
+                } else if (!state.paintingMoved) {
+                    msg.textContent = '📖 书被锁住了，得先找找别的线索...';
+                } else {
+                    msg.textContent = '📖 你已经翻过这本书了。';
+                }
+                break;
+            case 'key':
+                if (!state.hasKey && state.bookRead) {
+                    state.hasKey = true;
+                    msg.textContent = '🔑 你拿起了钥匙，它看起来很古老。';
+                } else if (!state.bookRead) {
+                    msg.textContent = '🔍 抽屉是锁着的，需要找到什么才能打开它？';
+                } else {
+                    msg.textContent = '🔑 钥匙已经在你手里了。';
+                }
+                break;
+            case 'door':
+                if (state.hasKey && state.hasNote) {
+                    msg.textContent = '🔐 门锁需要密码，输入纸条上的数字吧。';
+                } else {
+                    msg.textContent = '🚪 门锁着，你还需要更多线索。';
+                }
+                break;
+            case 'exit':
+                if (state.doorUnlocked) {
+                    state.gameOver = true;
+                    msg.textContent = '🎉 你成功逃出了密室！';
+                }
+                break;
+            default:
+                break;
+        }
+        updateUI();
+    }
+
+    document.getElementById('passwordBtn').addEventListener('click', function() {
+        if (state.gameOver) return;
+        const input = document.getElementById('passwordInput');
+        const msg = document.getElementById('messageDisplay');
+        const pwd = input.value.trim();
+
+        if (pwd === '1984') {
+            state.doorUnlocked = true;
+            msg.textContent = '✅ 密码正确！门锁发出"咔嗒"一声！';
+            input.value = '';
+            updateUI();
+        } else {
+            msg.textContent = '❌ 密码错误，再想想纸条上的数字...';
+            input.value = '';
+        }
+    });
+
+    document.getElementById('passwordInput').addEventListener('keydown', function(e) {
+        if (e.key === 'Enter') {
+            document.getElementById('passwordBtn').click();
+        }
+    });
+
+    document.getElementById('resetBtn').addEventListener('click', function() {
+        state.hasKey = false;
+        state.hasNote = false;
+        state.doorUnlocked = false;
+        state.bookRead = false;
+        state.paintingMoved = false;
+        state.gameOver = false;
+        document.getElementById('passwordInput').value = '';
+        document.getElementById('messageDisplay').textContent = '🔄 游戏已重置，重新开始！';
+        updateUI();
+    });
+
+    updateUI();
+</script>
+</body>
+</html>
