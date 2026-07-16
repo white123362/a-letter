@@ -87,7 +87,6 @@ h1{color:#f5c842;text-align:center;font-size:24px;margin-bottom:4px;}
 </div>
 
 <script>
-// ========== 游戏状态 ==========
 var purity = 50;
 var corruption = 50;
 var deathCount = 0;
@@ -99,32 +98,30 @@ var maxWrongAttempts = 3;
 var currentPuzzle = null;
 var puzzleCompleted = {method:false,killer:false,evidence:false};
 
-// ========== 推理题数据 ==========
 var puzzles = {
 method: {
-question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">💡 提示：与水有关，融化后消失</span>',
+question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span>',
 answers: ['冰线','冰块','冰','冷冻','结冰','冰绳','水线','冰丝'],
 correctMsg: '✅ 正确！凶手用冰线从门缝穿过，拉动门闩后冰融化成水。这就是密室手法！',
-wrongMsg: '❌ 再想想……现场有水渍，但没有任何工具残留。'
+wrongMsg: '❌ 再想想。'
 },
 killer: {
-question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有线索，你见过这个人</span>',
+question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤。<br><br><span class="gray">❓ 凶手是谁？</span>',
 answers: ['店员','咖啡馆店员','那个店员','女店员','咖啡店员','咖啡店店员','服务员'],
 correctMsg: '✅ 正确！死者手里攥着的黄色布料，正是店员围裙上的。她就是凶手！',
-wrongMsg: '❌ 再想想……死者手里有线索，你见过这个人。'
+wrongMsg: '❌ 再想想。'
 },
 evidence: {
-question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有东西，凶手身上有痕迹</span>',
+question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span>',
 answers: ['黄色布料','伤疤','黄色布片','布片','布料','围裙碎片','黄色布','黄布'],
 correctMsg: '✅ 正确！黄色布料是死者从凶手身上扯下的，这就是铁证！',
-wrongMsg: '❌ 再想想……死者手里紧握着什么？凶手身上少了什么？'
+wrongMsg: '❌ 再想想。'
 }
 };
 
 var puzzleList = ['method','killer','evidence'];
 var puzzleIndex = 0;
 
-// ========== 场景数据 ==========
 var scenes = [
 {
 ch:1,nm:'发现尸体',
@@ -168,7 +165,6 @@ end:true
 }
 ];
 
-// ========== 结局数据 ==========
 var endings = [
 {ti:'🌅 光明结局',de:'你找出了真相，画家得以安息。你决定继续追查向日葵组织，为所有受害者寻求正义。',em:'🌅'},
 {ti:'🌑 黑暗结局',de:'你得知了太多秘密。组织找到了你。第二天，你消失了。警局档案里再也没有你的名字。',em:'🌑'},
@@ -176,7 +172,6 @@ var endings = [
 {ti:'💀 死亡结局',de:'你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。',em:'💀'}
 ];
 
-// ========== DOM引用 ==========
 var sceneEl = document.getElementById('scene');
 var msgEl = document.getElementById('msg');
 var optEl = document.getElementById('options');
@@ -191,7 +186,6 @@ var imgCap = document.getElementById('imgCap');
 var clueBox = document.getElementById('clueBox');
 var clueList = document.getElementById('clueList');
 
-// ========== 核心函数 ==========
 function renderScene() {
 var s = scenes[currentSceneIdx];
 if (!s) return;
@@ -219,7 +213,6 @@ clueBox.classList.add('hidden');
 optEl.innerHTML = '';
 inputArea.classList.add('hidden');
 
-// 推理触发点
 if (s.isPuzzleTrigger) {
 nextBtn.disabled = false;
 nextBtn.textContent = '▶ 开始推理';
@@ -228,7 +221,6 @@ msgEl.innerHTML = '💡 点击"开始推理"进入推理环节';
 return;
 }
 
-// 推理激活
 if (s.isPuzzleActive) {
 showPuzzle();
 return;
@@ -255,17 +247,15 @@ nextBtn.disabled = true;
 updateStats();
 }
 
-// ========== 开始推理 ==========
 function startPuzzle() {
 puzzleIndex = 0;
 puzzleCompleted = {method:false,killer:false,evidence:false};
-currentSceneIdx = 3; // 进入推理中场景
+currentSceneIdx = 3;
 renderScene();
 }
 
 function showPuzzle() {
 if (puzzleIndex >= puzzleList.length) {
-// 所有推理完成
 currentSceneIdx = 4;
 renderScene();
 return;
@@ -285,7 +275,6 @@ optEl.innerHTML = '';
 updateStats();
 }
 
-// ========== 提交推理 ==========
 submitBtn.addEventListener('click', function() {
 if (gameOver) return;
 if (!currentPuzzle) return;
@@ -334,7 +323,6 @@ submitBtn.click();
 }
 });
 
-// ========== 普通选项 ==========
 function selectOption(idx) {
 var s = scenes[currentSceneIdx];
 var o = s.op[idx];
@@ -361,7 +349,6 @@ setTimeout(function() { renderScene(); }, 500);
 updateStats();
 }
 
-// ========== 死亡结局 ==========
 function showDeath(title, desc) {
 sceneEl.innerHTML = '<div class="death-screen"><div class="icon">💀</div><div class="title">' + title + '</div><div class="desc">' + desc + '</div><button class="btn-retry" onclick="retryFromCheckpoint()">🔄 从检查点重试</button></div>';
 optEl.innerHTML = '';
@@ -379,7 +366,6 @@ puzzleCompleted = {method:false,killer:false,evidence:false};
 renderScene();
 }
 
-// ========== 结局 ==========
 function showEnding() {
 var balance = purity - corruption;
 var endingIdx = 0;
