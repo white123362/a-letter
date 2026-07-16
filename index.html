@@ -2,135 +2,455 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>向日葵之影</title>
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>密室杀人 · 推理</title>
 <style>
 *{margin:0;padding:0;box-sizing:border-box;}
 body{background:#0a0a0a;color:#ddd;font-family:'Segoe UI',Arial,sans-serif;display:flex;justify-content:center;align-items:center;min-height:100vh;padding:16px;}
-.box{background:#121212;padding:24px;border-radius:16px;max-width:500px;width:100%;border:1px solid #2a2a2a;}
-h1{color:#f5c842;text-align:center;font-size:22px;margin-bottom:4px;}
-.sub{font-size:12px;color:#888;text-align:center;margin-bottom:16px;border-bottom:1px solid #1a1a2a;padding-bottom:12px;}
-.scene{background:#0a0a18;padding:16px;border-radius:12px;border-left:3px solid #f5c842;margin:12px 0;line-height:1.8;font-size:15px;min-height:110px;}
+.box{background:#121212;padding:24px;border-radius:16px;max-width:100%;width:100%;border:1px solid #2a2a2a;}
+h1{color:#f5c842;text-align:center;font-size:24px;margin-bottom:4px;}
+.sub{font-size:14px;color:#888;text-align:center;margin-bottom:16px;border-bottom:1px solid #1a1a2a;padding-bottom:12px;}
+.stats{display:flex;justify-content:space-between;margin-bottom:12px;gap:8px;}
+.stat-box{flex:1;text-align:center;padding:8px;border-radius:8px;font-size:13px;}
+.stat-box.purity{background:#0a1a2a;border:1px solid #2a5a6a;}
+.stat-box.purity .val{color:#4fc3f7;}
+.stat-box.corruption{background:#1a0a0a;border:1px solid #6a2a2a;}
+.stat-box.corruption .val{color:#ff6b6b;}
+.stat-box.balance{background:#1a1a0a;border:1px solid #5a5a2a;}
+.stat-box.balance .val{color:#f5c842;}
+.death-count{font-size:13px;color:#ff6b6b;text-align:center;margin-bottom:10px;}
+.scene{background:#0a0a18;padding:16px;border-radius:12px;border-left:3px solid #f5c842;margin:12px 0;line-height:1.8;font-size:16px;min-height:110px;}
 .scene .hl{color:#f5c842;}
 .scene .dr{color:#ff6b6b;}
 .scene .gray{color:#888;}
-.options{display:flex;flex-direction:column;gap:6px;margin:12px 0;}
-.options button{background:#1a1a2e;border:1px solid #2a3a5e;color:#eee;padding:10px 14px;border-radius:10px;text-align:left;font-size:14px;cursor:pointer;transition:0.2s;}
+.scene .clue-highlight{color:#4fc3f7;font-weight:bold;}
+.options{display:flex;flex-direction:column;gap:8px;margin:12px 0;}
+.options button{background:#1a1a2e;border:1px solid #2a3a5e;color:#eee;padding:14px 16px;border-radius:12px;text-align:left;font-size:16px;cursor:pointer;transition:0.2s;}
 .options button:hover{background:#252545;border-color:#f5c842;}
 .options button:disabled{opacity:0.3;cursor:not-allowed;}
-.msg{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #1a2a3a;font-size:13px;color:#a8d8ea;margin:12px 0;min-height:40px;}
+.options button.purity-option{border-color:#2a5a6a;}
+.options button.purity-option:hover{border-color:#4fc3f7;background:#0a2a3a;}
+.options button.corrupt-option{border-color:#6a2a2a;}
+.options button.corrupt-option:hover{border-color:#ff6b6b;background:#2a0a0a;}
+.msg{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #1a2a3a;font-size:14px;color:#a8d8ea;margin:12px 0;min-height:40px;}
 .msg .ok{color:#4caf50;font-weight:bold;}
-.btn-next{background:#f5c842;border:none;color:#1a1a2e;padding:12px;border-radius:30px;font-weight:bold;font-size:16px;cursor:pointer;width:100%;transition:0.2s;}
+.msg .fail{color:#ff6b6b;font-weight:bold;}
+.input-area{display:flex;gap:10px;margin:12px 0;}
+.input-area input{flex:1;padding:14px;border-radius:12px;border:1px solid #2a3a5e;background:#0a0a18;color:#eee;font-size:16px;}
+.input-area input:focus{outline:none;border-color:#f5c842;}
+.input-area button{background:#f5c842;border:none;color:#1a1a2e;padding:14px 24px;border-radius:12px;font-weight:bold;font-size:16px;cursor:pointer;}
+.input-area button:hover{background:#ffd966;}
+.btn-next{background:#f5c842;border:none;color:#1a1a2e;padding:16px;border-radius:30px;font-weight:bold;font-size:18px;cursor:pointer;width:100%;transition:0.2s;}
 .btn-next:hover{background:#ffd966;}
 .btn-next:disabled{opacity:0.3;cursor:not-allowed;}
-.btn-reset{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;padding:10px;border-radius:20px;font-size:13px;cursor:pointer;width:100%;margin-top:10px;transition:0.2s;}
+.btn-reset{background:#1a1a2e;border:1px solid #2a2a2a;color:#888;padding:12px;border-radius:20px;font-size:15px;cursor:pointer;width:100%;margin-top:10px;transition:0.2s;}
 .btn-reset:hover{border-color:#ff6b6b;color:#ff6b6b;}
 .hidden{display:none;}
 .image-box{background:#0a0a14;border:1px dashed #2a3a5e;border-radius:12px;padding:12px;text-align:center;margin:12px 0;}
-.image-box img{max-width:100%;border-radius:8px;max-height:200px;}
-.image-box .cap{color:#888;font-size:11px;margin-top:4px;}
+.image-box img{max-width:100%;border-radius:8px;max-height:250px;}
+.image-box .cap{color:#888;font-size:12px;margin-top:4px;}
+.death-screen{background:#1a0000;border:3px solid #ff0000;border-radius:12px;padding:24px;text-align:center;margin:12px 0;}
+.death-screen .icon{font-size:60px;}
+.death-screen .title{color:#ff0000;font-size:24px;font-weight:bold;margin:8px 0;}
+.death-screen .desc{color:#ff6b6b;font-size:16px;line-height:1.8;}
+.death-screen .btn-retry{background:#ff0000;border:none;color:#fff;padding:14px 40px;border-radius:30px;font-size:18px;font-weight:bold;cursor:pointer;margin-top:16px;}
+.death-screen .btn-retry:hover{background:#cc0000;}
 .end-icon{text-align:center;font-size:44px;padding:12px 0 4px 0;}
 .end-title{text-align:center;font-size:20px;color:#f5c842;}
 .end-desc{text-align:center;font-size:14px;color:#aaa;padding:12px;line-height:1.8;}
+.clue-box{background:#0a0a18;padding:12px;border-radius:10px;border:1px solid #2a3a5e;margin:8px 0;font-size:14px;}
+.clue-box .cl{color:#f5c842;}
 </style>
 </head>
 <body>
 <div class="box">
-<h1>向日葵之影</h1>
-<div class="sub">第 <span id="chap">1</span> 章 · <span id="sname">审讯室</span></div>
+<h1>🔪 密室杀人 · 推理</h1>
+<div class="stats">
+<div class="stat-box purity">🕊️ 纯洁度 <span class="val" id="purityVal">50</span></div>
+<div class="stat-box corruption">🌑 污染度 <span class="val" id="corruptVal">50</span></div>
+<div class="stat-box balance">⚖️ 平衡 <span class="val" id="balanceVal">0</span></div>
+</div>
+<div class="death-count">💀 死亡次数：<span id="deathCount">0</span></div>
+<div class="sub">第 <span id="chap">1</span> 章 · <span id="sname">密室</span></div>
 <div class="scene" id="scene"></div>
 <div id="imgBox" class="image-box hidden">
 <img id="imgShow" src="72776.jpeg" alt="物证">
 <div class="cap" id="imgCap">关键物证</div>
 </div>
+<div id="clueBox" class="clue-box hidden">
+🔍 已收集线索：<span id="clueList" style="color:#f5c842;"></span>
+</div>
 <div id="options" class="options"></div>
+<div id="inputArea" class="input-area hidden">
+<input type="text" id="answerInput" placeholder="输入你的推理答案...">
+<button id="submitAnswer">提交推理</button>
+</div>
 <div class="msg" id="msg">点击选项推进剧情</div>
 <button class="btn-next" id="nextBtn" disabled>继续</button>
 <button class="btn-reset" id="resetBtn">重新开始</button>
 </div>
 
 <script>
-var S = [
-{ch:1,nm:'审讯室',tx:'审讯室只有一盏灯，照在画家脸上。<br><br>"季警官，我知道你在想什么。"<br>他把双手摊开："但你知道吗？<span class=dr>我坐在这里，不是因为被抓，是因为我想来。</span>"<br><br>他微笑："前三个审讯官都被我聊哭了。"',img:null,op:[{lb:'你是在测试我的心理承受力？',nx:1,cl:null},{lb:'你故意被抓，是为了传递某个信息。',nx:1,cl:'画家自首动机'},{lb:'你提到前三个审讯官，是在威胁我？',nx:1,cl:null},{lb:'你坐在这里，是因为你无处可去。',nx:1,cl:null}]},
-{ch:1,nm:'审讯室',tx:'你从档案袋里抽出一张照片，推到他面前。<br><br>"这张聊天记录截图，你认识吗？"<br><br>他的目光落在照片上，<span class=dr>瞳孔微微收缩</span>。<br><br>沉默。五秒钟的沉默。',img:'72776.jpeg',cap:'案发现场手机里的聊天记录',op:[{lb:'你认识向日葵。',nx:2,cl:'画家认识向日葵'},{lb:'你在犹豫要不要告诉我真相。',nx:2,cl:null},{lb:'你怕这张照片。',nx:2,cl:null},{lb:'这张照片是你故意留下的。',nx:2,cl:'照片是画家故意留的'}]},
-{ch:1,nm:'审讯室',tx:'他抬起头，眼神变了。<br><br>"你比他们聪明。"他说。<br><br>"<span class=hl>向日葵……是我妹妹。</span>"<br><br>他低下头："我做的所有事，都是为了保护她。"<br><br><span class=gray>你获得了关键线索：</span> <span class=hl>向日葵 = 画家的妹妹</span>',img:null,op:[],end:true,nc:2},
-{ch:2,nm:'档案室',tx:'你来到警局档案室，翻阅与"画家"相关的所有案件记录。<br><br>你发现一份被涂改过的档案——<br>上面写着：<span class=dr>"向日葵项目 · 已封存"</span><br><br>你注意到档案封面上有一个手写字母：<span class=hl>S</span>',img:null,op:[{lb:'S代表什么？向日葵的缩写？',nx:4,cl:'S-向日葵缩写'},{lb:'这份档案被人动过手脚。',nx:4,cl:'档案被篡改'},{lb:'我要找到原始档案。',nx:4,cl:null},{lb:'S可能是某个人的名字缩写。',nx:4,cl:null}]},
-{ch:2,nm:'档案室',tx:'你在档案柜底层发现一封匿名信。<br><br>信上写着：<br>"向日葵不是一个人，是一个代号。<br>真正的向日葵，藏在画里。"<br><br>没有署名。没有日期。',img:null,op:[{lb:'这封信是画家写的。',nx:5,cl:'匿名信-可能来自画家'},{lb:'有人在引导我的调查方向。',nx:5,cl:'被引导的调查'},{lb:'藏在画里……是指那幅失窃的画？',nx:5,cl:'画作是关键'},{lb:'这封信可能是陷阱。',nx:5,cl:null}]},
-{ch:2,nm:'档案室',tx:'你调出监控录像，发现案发当晚，<br>一个戴帽子的身影在画廊附近徘徊。<br><br>你放大画面——<br>他的口袋里露出一角<span class=hl>黄色布料</span>。',img:null,op:[],end:true,nc:3},
-{ch:3,nm:'咖啡馆',tx:'你根据线索找到一家叫"向日葵"的咖啡馆。<br><br>店员看到你进来，表情有些紧张。<br><br>"你是……来找人的吗？"她问。<br><br><span class=gray>你注意到她手腕上有一道旧伤疤。</span>',img:null,op:[{lb:'我听说这里和向日葵有关。',nx:7,cl:'咖啡馆与向日葵有关'},{lb:'你认识画家吗？',nx:7,cl:null},{lb:'这张照片里的聊天记录，你见过吗？',nx:7,cl:null},{lb:'你在害怕什么？',nx:7,cl:'店员在害怕'}]},
-{ch:3,nm:'咖啡馆',tx:'店员沉默了很久。<br><br>"那幅画……是画家最后的一幅作品。"<br>"画的是一个女孩，站在向日葵田里。"<br><br>她低声说："那个女孩，<span class=dr>是他死去的妹妹。</span>"',img:null,op:[{lb:'那幅画现在在哪里？',nx:8,cl:'最后一幅画的下落'},{lb:'他妹妹是怎么死的？',nx:8,cl:'妹妹死因'},{lb:'你和他是什么关系？',nx:8,cl:null},{lb:'画里藏着什么？',nx:8,cl:'画中藏有秘密'}]},
-{ch:3,nm:'咖啡馆',tx:'店员带你去咖啡馆后院。<br><br>墙上挂着一幅褪色的画——<br>画里，一个女孩站在向日葵田里，<br>手里拿着一封信。<br><br>你凑近看，信上写着：<span class=hl>"S.O.S."</span>',img:null,op:[],end:true,nc:4},
-{ch:4,nm:'废弃画廊',tx:'你来到那幅画所在的废弃画廊。<br><br>空气中弥漫着灰尘和松节油的气味。<br>墙上挂满了一幅幅画像——<br>全是同一个人：<span class=hl>向日葵田里的女孩</span>。<br><br>你数了数：<span class=dr>九幅画。</span>',img:null,op:[{lb:'九幅画……代表什么？',nx:10,cl:'九幅画-关键数字'},{lb:'画里的女孩就是向日葵。',nx:10,cl:'女孩=向日葵'},{lb:'我要拍下这些画。',nx:10,cl:null},{lb:'九可能代表某个日期。',nx:10,cl:'9可能是日期'}]},
-{ch:4,nm:'废弃画廊',tx:'你发现最后一幅画的背面有一行小字：<br><br>"向日葵不会低头，直到太阳下山。"<br><br>你突然意识到——<br>这句话和你的聊天记录截图里的一句话<span class=hl>一模一样</span>。',img:'72776.jpeg',cap:'聊天记录里的同一句话',op:[{lb:'这句话是暗号。',nx:11,cl:'暗号确认'},{lb:'聊天记录和画作有直接关联。',nx:11,cl:'画与聊天记录关联'},{lb:'画家在通过画作传递信息。',nx:11,cl:'画作传递信息'},{lb:'这句话是遗言。',nx:11,cl:null}]},
-{ch:4,nm:'废弃画廊',tx:'你听到身后传来脚步声。<br><br>你转身——<br>一个黑影站在门口。<br><br>"你不该来这里。"那个声音说。<br><br><span class=gray>你认出了这个声音：是画家。</span>',img:null,op:[],end:true,nc:5},
-{ch:5,nm:'最终审讯',tx:'你和画家在画廊里对峙。<br><br>"你妹妹的死，和那幅画有关。"你说。<br><br>他沉默了很久。<br><br>"她不是死了。"他说。<span class=dr>"她是被带走的。"</span>',img:null,op:[{lb:'被谁带走的？',nx:13,cl:'妹妹被带走'},{lb:'你一直在找她。',nx:13,cl:'画家在找妹妹'},{lb:'所以你和警方合作，是为了找到她。',nx:13,cl:'画家与警方合作'},{lb:'她是你唯一的亲人。',nx:13,cl:null}]},
-{ch:5,nm:'最终审讯',tx:'他抬起头，眼眶发红。<br><br>"我是为了找她，才做了那些事。"<br>"警方查不到她的下落——<span class=hl>但我能。</span>"<br><br>他递给你一张纸条，<br>上面写着：<span class=dr>"SUNFLOWER"</span>',img:null,op:[{lb:'SUNFLOWER是坐标。',nx:14,cl:'坐标线索'},{lb:'这是她最后留下的信息。',nx:14,cl:'妹妹的最后信息'},{lb:'你已经找到她了，对吗？',nx:14,cl:'画家已找到妹妹'},{lb:'SUNFLOWER是暗语。',nx:14,cl:'暗语'}]},
-{ch:5,nm:'最终审讯',tx:'他点了点头。<br><br>"我找到了她。"<br>"但她已经不记得我了。"<br><br>他闭上眼："这就是为什么我来自首。"<br>"我想让她知道……<span class=hl>我没有放弃过她。</span>"',img:null,op:[],end:true,isEnd:true}
+// ========== 游戏状态 ==========
+var purity = 50;
+var corruption = 50;
+var deathCount = 0;
+var currentSceneIdx = 0;
+var collectedClues = [];
+var gameOver = false;
+var wrongAttempts = 0; // 推理错误次数
+var maxWrongAttempts = 3; // 最多错误3次
+var currentPuzzle = null; // 当前推理题
+
+// ========== 推理题数据 ==========
+var puzzles = [
+{
+id: 'method',
+question: '🔍 <span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">提示：与水有关，融化后消失</span>',
+answers: ['冰线','冰块','冰','冷冻','结冰','冰绳','水线'],
+correctMsg: '✅ 正确！凶手用冰线从门缝穿过，拉动门闩后冰融化成水。这就是密室手法！',
+wrongMsg: '❌ 再想想……现场有水渍，但没有任何工具残留。'
+},
+{
+id: 'killer',
+question: '🔍 <span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她受伤的样子。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">提示：死者手里有线索，你见过这个人</span>',
+answers: ['店员','咖啡馆店员','那个店员','女店员','咖啡店员','咖啡店店员'],
+correctMsg: '✅ 正确！死者手里攥着的黄色布料，正是店员围裙上的。她就是凶手！',
+wrongMsg: '❌ 再想想……死者手里有线索，你见过这个人。'
+},
+{
+id: 'evidence',
+question: '🔍 <span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">提示：死者手里有东西，凶手身上有痕迹</span>',
+answers: ['黄色布料','伤疤','黄色布片','布片','布料','围裙碎片','黄色布','黄布'],
+correctMsg: '✅ 正确！黄色布料是死者从凶手身上扯下的，这就是铁证！',
+wrongMsg: '❌ 再想想……死者手里紧握着什么？凶手身上少了什么？'
+}
 ];
 
-var END = [
-{ti:'向日葵重逢',de:'你帮助画家找到了妹妹。她虽然失忆，但看到那幅画时，流泪了。画家决定自首，用余生弥补过失。',em:'🌅'},
-{ti:'未解之谜',de:'画家在审讯中突然沉默，拒绝再说话。你永远不知道向日葵是谁。案件不了了之。',em:'🌫️'},
-{ti:'真相大白',de:'你查出了画家背后的组织，揭开了向日葵计划的真相。画家被赦免部分罪行，但失去了自由。',em:'📜'},
-{ti:'永远的向日葵',de:'你发现向日葵并不是画家的妹妹，而是他自己。他一直在寻找自己。最终，他消失了。',em:'🌌'}
+// ========== 场景数据（包含密室杀人） ==========
+var scenes = [
+// 第1幕：发现尸体
+{
+ch:1,nm:'密室 · 发现尸体',
+tx:'你赶到废弃画廊时，警笛声已经远去。<br><br>画家死了。<br><br>他倒在画廊中央，胸口插着一把刀。门从内侧反锁，钥匙在他的口袋里。窗户紧闭，从内侧锁死。<br><br><span class="dr">这是一个完美的密室。</span><br><br><span class="gray">你注意到：</span><br>· 地上有一小滩水渍<br>· 死者右手紧握着一片<span class="clue-highlight">黄色布料</span><br>· 门缝里有一道细小的划痕',
+img:'72776.jpeg',cap:'案发现场 · 密室',
+op:[
+{lb:'🕊️ "他死前在保护什么……"',nx:1,cl:'画家的死有隐情',purity:10,corrupt:-5},
+{lb:'🔍 "我要仔细检查现场。"',nx:1,cl:'密室现场',purity:5,corrupt:0},
+{lb:'🌑 "凶手一定还在附近。"',nx:1,cl:null,purity:-5,corrupt:10},
+]},
+// 第2幕：调查线索
+{
+ch:1,nm:'密室 · 调查线索',
+tx:'你仔细检查现场。<br><br>你发现：<br>· 门缝上有细小的划痕，像是被线勒过<br>· 地上的水渍已经快干了<br>· 死者手里那片黄色布料，和咖啡馆店员的围裙材质一样<br>· 你想起——她的手腕上有一道旧伤疤<br><br><span class="clue-highlight">线索已收集：</span> 水渍 · 划痕 · 黄色布料 · 伤疤',
+img:null,
+op:[
+{lb:'🔍 "我明白了……这是一个诡计。"',nx:2,cl:'密室手法',purity:5,corrupt:0},
+{lb:'🌑 "凶手是那个店员。"',nx:2,cl:'凶手身份',purity:-5,corrupt:10},
+]},
+// 第3幕：触发推理题1
+{
+ch:1,nm:'密室 · 推理开始',
+tx:'你站在密室中央，看着地上的水渍和门缝上的划痕。<br><br><span class="hl">现在，你需要自己推理出真相。</span><br><br>你只有3次机会。如果推理错误超过3次，你将永远找不到真相。',
+img:null,
+op:[]
+},
+// 第4幕：推理题1 - 密室手法（通过后进入）
+{
+ch:1,nm:'密室 · 推理1',
+tx:'<span class="clue-highlight">推理题 1/3：密室手法</span><br><br>现场门从内侧反锁，钥匙在死者口袋里，窗户从内侧锁死。但地上有一小滩水渍，没有其他痕迹。<br><br><span class="gray">❓ 凶手是用什么方法从外面锁上门的？</span><br><span style="color:#888;font-size:14px;">💡 提示：与水有关，融化后消失</span>',
+img:null,
+op:[],
+isPuzzle:true,
+puzzleId:'method'
+},
+// 第5幕：推理题2 - 凶手身份
+{
+ch:1,nm:'密室 · 推理2',
+tx:'<span class="clue-highlight">推理题 2/3：凶手身份</span><br><br>死者手里紧握着一片黄色布料。咖啡馆店员手腕上有旧伤疤，你见过她受伤的样子。<br><br><span class="gray">❓ 凶手是谁？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有线索，你见过这个人</span>',
+img:null,
+op:[],
+isPuzzle:true,
+puzzleId:'killer'
+},
+// 第6幕：推理题3 - 关键证据
+{
+ch:1,nm:'密室 · 推理3',
+tx:'<span class="clue-highlight">推理题 3/3：关键证据</span><br><br>凶手已经承认了杀人，但你需要指出最关键的物证。<br><br><span class="gray">❓ 最关键的证据是什么？</span><br><span style="color:#888;font-size:14px;">💡 提示：死者手里有东西，凶手身上有痕迹</span>',
+img:null,
+op:[],
+isPuzzle:true,
+puzzleId:'evidence'
+},
+// 第7幕：真相揭晓
+{
+ch:1,nm:'密室 · 真相',
+tx:'你推理出了真相。<br><br>凶手用<span class="hl">冰线</span>穿过门缝，拉动门闩锁住门。冰融化后变成水，所以现场只有水渍。<br><br>凶手是<span class="hl">咖啡馆店员</span>。死者手里的<span class="hl">黄色布料</span>就是证据。<br><br><span class="gray">画家发现她是组织派来的卧底，所以被灭口了。</span>',
+img:null,
+op:[],
+end:true,
+nc:2
+}
 ];
 
-var st={idx:0,clues:[]};
+// ========== 结局数据 ==========
+var endings = [
+{ti:'🌅 光明结局',de:'你找出了真相，画家得以安息。你决定继续追查向日葵组织，为所有受害者寻求正义。',em:'🌅'},
+{ti:'🌑 黑暗结局',de:'你得知了太多秘密。组织找到了你。第二天，你消失了。警局档案里再也没有你的名字。',em:'🌑'},
+{ti:'⚖️ 平衡结局',de:'你选择了沉默。这个案子成为悬案，但你活了下来。有些真相，也许永远不应该被揭开。',em:'⚖️'},
+{ti:'💀 死亡结局',de:'你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。',em:'💀'}
+];
 
-function render(){
-var s=S[st.idx]; if(!s)return;
-document.getElementById('chap').textContent=s.ch;
-document.getElementById('sname').textContent=s.nm;
-document.getElementById('scene').innerHTML=s.tx;
-var ib=document.getElementById('imgBox'), ish=document.getElementById('imgShow'), ic=document.getElementById('imgCap');
-if(s.img){ib.classList.remove('hidden');ish.src=s.img;ic.textContent=s.cap||'关键物证';}else{ib.classList.add('hidden');}
-var od=document.getElementById('options'); od.innerHTML=''; var nb=document.getElementById('nextBtn');
-if(s.op&&s.op.length>0){
-s.op.forEach(function(o,i){var b=document.createElement('button');b.textContent=o.lb;b.onclick=function(){pick(i);};od.appendChild(b);});
-nb.disabled=true; document.getElementById('msg').innerHTML='点击选项推进剧情';
-}else{
-if(s.isEnd){showEnd();return;}
-if(s.end){document.getElementById('msg').innerHTML='<span class=ok>章节完成！</span> 点击"继续"进入下一章';nb.disabled=false;nb.textContent='继续';nb.onclick=goNext;}else{nb.disabled=true;}
-}
-document.getElementById('clueCount').textContent=st.clues.length;
-}
+// ========== DOM引用 ==========
+var sceneEl = document.getElementById('scene');
+var msgEl = document.getElementById('msg');
+var optEl = document.getElementById('options');
+var inputArea = document.getElementById('inputArea');
+var answerInput = document.getElementById('answerInput');
+var submitBtn = document.getElementById('submitAnswer');
+var nextBtn = document.getElementById('nextBtn');
+var resetBtn = document.getElementById('resetBtn');
+var imgBox = document.getElementById('imgBox');
+var imgShow = document.getElementById('imgShow');
+var imgCap = document.getElementById('imgCap');
+var clueBox = document.getElementById('clueBox');
+var clueList = document.getElementById('clueList');
 
-function pick(i){
-var s=S[st.idx], o=s.op[i]; if(!o)return;
-var bs=document.querySelectorAll('#options button'); bs.forEach(function(b){b.disabled=true;});
-if(o.cl){if(st.clues.indexOf(o.cl)===-1){st.clues.push(o.cl);document.getElementById('msg').innerHTML='<span class=ok>获得线索：'+o.cl+'</span>';}}
-if(o.nx!==undefined){st.idx=o.nx;setTimeout(function(){render();},400);}
-document.getElementById('clueCount').textContent=st.clues.length;
-}
+// ========== 核心函数 ==========
+function renderScene() {
+var s = scenes[currentSceneIdx];
+if (!s) return;
 
-function goNext(){
-var s=S[st.idx];
-if(s&&s.nc!==undefined){
-var ni=st.idx+1;
-while(ni<S.length&&S[ni].ch===s.ch){ni++;}
-if(ni<S.length){st.idx=ni;render();}else{showEnd();}
-}
-document.getElementById('nextBtn').disabled=true;
-}
+document.getElementById('chap').textContent = s.ch || 1;
+document.getElementById('sname').textContent = s.nm || '密室';
 
-function showEnd(){
-var c=st.clues.length, ei=c>=6?0:(c>=4?2:(c>=2?1:3)), e=END[ei];
-document.getElementById('scene').innerHTML='<div class=end-icon>'+e.em+'</div><div class=end-title>'+e.ti+'</div><div class=end-desc>'+e.de+'</div>';
-document.getElementById('options').innerHTML='';
-document.getElementById('nextBtn').disabled=true; document.getElementById('nextBtn').textContent='已完结';
-document.getElementById('msg').innerHTML='<span class=ok>游戏结束</span> 感谢你完成"向日葵之影"';
-document.getElementById('imgBox').classList.add('hidden');
-document.getElementById('chap').textContent='终';
-document.getElementById('sname').textContent='结局';
+// 场景文字
+sceneEl.innerHTML = s.tx || '';
+
+// 图片
+if (s.img) {
+imgBox.classList.remove('hidden');
+imgShow.src = s.img;
+imgCap.textContent = s.cap || '关键物证';
+} else {
+imgBox.classList.add('hidden');
 }
 
-function reset(){
-st.idx=0;st.clues=[];
-document.getElementById('nextBtn').textContent='继续';
-document.getElementById('nextBtn').onclick=null;
-render();
+// 线索显示
+if (collectedClues.length > 0) {
+clueBox.classList.remove('hidden');
+clueList.textContent = collectedClues.join(' · ');
+} else {
+clueBox.classList.add('hidden');
 }
-document.getElementById('resetBtn').onclick=reset;
-render();
+
+// 选项
+optEl.innerHTML = '';
+inputArea.classList.add('hidden');
+
+// 判断是否是推理题
+if (s.isPuzzle && s.puzzleId) {
+// 显示输入框
+inputArea.classList.remove('hidden');
+answerInput.value = '';
+answerInput.placeholder = '输入你的推理...';
+msgEl.innerHTML = '🔍 输入你的推理答案（3次机会）';
+nextBtn.disabled = true;
+currentPuzzle = puzzles.find(function(p) { return p.id === s.puzzleId; });
+return;
+}
+
+// 普通选项
+if (s.op && s.op.length > 0) {
+s.op.forEach(function(o, i) {
+var btn = document.createElement('button');
+btn.textContent = o.lb;
+btn.onclick = function() { selectOption(i); };
+if (o.purity && o.purity > 0) btn.classList.add('purity-option');
+if (o.corrupt && o.corrupt > 0) btn.classList.add('corrupt-option');
+optEl.appendChild(btn);
+});
+nextBtn.disabled = true;
+msgEl.innerHTML = '点击选项推进剧情';
+} else if (s.end) {
+msgEl.innerHTML = '🎉 <span class="ok">案件告破！</span> 你推理出了真相。';
+nextBtn.disabled = false;
+nextBtn.textContent = '进入下一章';
+nextBtn.onclick = goNextChapter;
+} else {
+nextBtn.disabled = true;
+}
+
+updateStats();
+}
+
+function selectOption(idx) {
+var s = scenes[currentSceneIdx];
+var o = s.op[idx];
+if (!o) return;
+
+// 禁用所有按钮
+var btns = document.querySelectorAll('#options button');
+btns.forEach(function(b) { b.disabled = true; });
+
+// 收集线索
+if (o.cl) {
+if (collectedClues.indexOf(o.cl) === -1) {
+collectedClues.push(o.cl);
+msgEl.innerHTML = '🔍 <span class="ok">获得线索：' + o.cl + '</span>';
+}
+}
+
+// 修改属性
+if (o.purity) purity = Math.min(100, Math.max(0, purity + o.purity));
+if (o.corrupt) corruption = Math.min(100, Math.max(0, corruption + o.corrupt));
+
+// 跳转
+if (o.nx !== undefined) {
+currentSceneIdx = o.nx;
+setTimeout(function() { renderScene(); }, 500);
+}
+
+updateStats();
+}
+
+// ========== 推理提交 ==========
+submitBtn.addEventListener('click', function() {
+if (gameOver) return;
+if (!currentPuzzle) return;
+
+var input = answerInput.value.trim();
+if (!input) {
+msgEl.innerHTML = '⚠️ 请输入你的推理答案';
+return;
+}
+
+// 检查答案
+var isCorrect = false;
+currentPuzzle.answers.forEach(function(a) {
+if (input.toLowerCase().indexOf(a.toLowerCase()) !== -1) {
+isCorrect = true;
+}
+});
+
+if (isCorrect) {
+// 正确！
+msgEl.innerHTML = '✅ <span class="ok">' + currentPuzzle.correctMsg + '</span>';
+inputArea.classList.add('hidden');
+// 跳到下一个场景
+currentSceneIdx++;
+setTimeout(function() {
+renderScene();
+}, 1000);
+} else {
+// 错误
+wrongAttempts++;
+var remaining = maxWrongAttempts - wrongAttempts;
+msgEl.innerHTML = '❌ <span class="fail">' + currentPuzzle.wrongMsg + '</span> 剩余机会：' + remaining;
+answerInput.value = '';
+
+if (wrongAttempts >= maxWrongAttempts) {
+// 触发死亡结局
+gameOver = true;
+showDeath('推理失败 · 组织发现了你', '你推理错误太多次。当你离开画廊时，一辆黑色轿车跟在你身后。你听到一声枪响。');
+}
+}
+});
+
+// 回车提交
+answerInput.addEventListener('keydown', function(e) {
+if (e.key === 'Enter') {
+submitBtn.click();
+}
+});
+
+// ========== 死亡结局 ==========
+function showDeath(title, desc) {
+sceneEl.innerHTML = '<div class="death-screen"><div class="icon">💀</div><div class="title">' + title + '</div><div class="desc">' + desc + '</div><button class="btn-retry" onclick="retryFromCheckpoint()">🔄 从检查点重试</button></div>';
+optEl.innerHTML = '';
+inputArea.classList.add('hidden');
+msgEl.innerHTML = '💀 <span class="fail">你死了。</span>';
+nextBtn.disabled = true;
+gameOver = true;
+deathCount++;
+document.getElementById('deathCount').textContent = deathCount;
+}
+
+function retryFromCheckpoint() {
+// 回到当前章节开头
+var currentChap = scenes[currentSceneIdx].ch || 1;
+var checkpointIdx = 0;
+for (var i = 0; i < scenes.length; i++) {
+if (scenes[i].ch === currentChap) {
+checkpointIdx = i;
+break;
+}
+}
+currentSceneIdx = checkpointIdx;
+wrongAttempts = 0;
+gameOver = false;
+renderScene();
+}
+
+// ========== 跳转下一章 ==========
+function goNextChapter() {
+var s = scenes[currentSceneIdx];
+if (s && s.nc !== undefined) {
+var nextIdx = currentSceneIdx + 1;
+while (nextIdx < scenes.length && scenes[nextIdx].ch === s.ch) { nextIdx++; }
+if (nextIdx < scenes.length) {
+currentSceneIdx = nextIdx;
+renderScene();
+} else {
+showEnding();
+}
+}
+nextBtn.disabled = true;
+}
+
+function showEnding() {
+var balance = purity - corruption;
+var endingIdx = 0;
+if (balance >= 20) endingIdx = 0;
+else if (balance <= -20) endingIdx = 1;
+else if (Math.abs(balance) < 10) endingIdx = 2;
+else endingIdx = 3;
+
+var e = endings[endingIdx];
+sceneEl.innerHTML = '<div class="end-icon">' + e.em + '</div><div class="end-title">' + e.ti + '</div><div class="end-desc">' + e.desc + '</div>';
+optEl.innerHTML = '';
+inputArea.classList.add('hidden');
+msgEl.innerHTML = '🏁 <span class="ok">游戏结束</span>';
+nextBtn.disabled = true;
+nextBtn.textContent = '🔚 已完结';
+gameOver = true;
+}
+
+function updateStats() {
+document.getElementById('purityVal').textContent = purity;
+document.getElementById('corruptVal').textContent = corruption;
+document.getElementById('balanceVal').textContent = purity - corruption;
+document.getElementById('deathCount').textContent = deathCount;
+}
+
+function resetGame() {
+purity = 50;
+corruption = 50;
+deathCount = 0;
+currentSceneIdx = 0;
+collectedClues = [];
+gameOver = false;
+wrongAttempts = 0;
+currentPuzzle = null;
+nextBtn.textContent = '继续';
+nextBtn.onclick = null;
+renderScene();
+updateStats();
+}
+
+resetBtn.addEventListener('click', resetGame);
+renderScene();
+updateStats();
 </script>
 </body>
 </html>
