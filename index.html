@@ -1,6 +1,41 @@
 <!DOCTYPE html>
 <html>
 <head>
+<script>
+// 强制消灭加载屏
+(function() {
+    var checkAndDestroy = function() {
+        var loading = document.getElementById('loadingScreen');
+        if (loading) {
+            loading.style.display = 'none';
+            loading.classList.add('hidden');
+            document.body.style.overflow = 'auto';
+            return true;
+        }
+        return false;
+    };
+
+    // 立即执行一次
+    checkAndDestroy();
+
+    // 0.5秒后再执行一次
+    setTimeout(checkAndDestroy, 500);
+
+    // 1秒后再执行一次
+    setTimeout(checkAndDestroy, 1000);
+
+    // 2秒后再执行一次
+    setTimeout(checkAndDestroy, 2000);
+
+    // 3秒后直接强制干掉
+    setTimeout(function() {
+        var loading = document.getElementById('loadingScreen');
+        if (loading) {
+            loading.parentNode.removeChild(loading);
+        }
+    }, 3000);
+})();
+</script>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
 <title>🎭 故人不归 · 极致古风</title>
@@ -8845,34 +8880,4 @@ setTimeout(function() {
 
 console.log('✅ 第16批加载完成（AI + BGM + 语音）');
 console.log('🎵 BGM 已启动，🗣️ 语音已就绪，🤖 AI 已连接');
-   <script>
-// 强制隐藏加载屏
-(function() {
-    // 页面加载完成后隐藏
-    window.addEventListener('load', function() {
-        setTimeout(function() {
-            var loading = document.getElementById('loadingScreen');
-            if (loading) {
-                loading.classList.add('hidden');
-            }
-        }, 500);
-    });
 
-    // 如果3秒后还没消失，强制隐藏
-    setTimeout(function() {
-        var loading = document.getElementById('loadingScreen');
-        if (loading && !loading.classList.contains('hidden')) {
-            loading.classList.add('hidden');
-        }
-    }, 3000);
-
-    // 如果5秒后还没消失，直接干掉
-    setTimeout(function() {
-        var loading = document.getElementById('loadingScreen');
-        if (loading) {
-            loading.style.display = 'none';
-        }
-    }, 5000);
-})();
-</script>
-    
