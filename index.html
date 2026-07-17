@@ -1,3 +1,75 @@
+<script>
+// ===== 强制启动（置顶版） =====
+(function() {
+    console.log('🔥 强制启动游戏...');
+
+    // 监听页面加载完成
+    var ready = function() {
+        // 隐藏加载屏
+        var ls = document.getElementById('loadingScreen');
+        if (ls) ls.style.display = 'none';
+
+        // 获取画布
+        var canvas = document.getElementById('gameCanvas');
+        if (!canvas) {
+            canvas = document.createElement('canvas');
+            canvas.id = 'gameCanvas';
+            canvas.style.cssText = 'display:block;width:100%;height:100%;background:#0d0a12;';
+            var container = document.getElementById('gameContainer') || document.getElementById('app') || document.body;
+            container.appendChild(canvas);
+        }
+
+        // 画布尺寸
+        var W = canvas.width || window.innerWidth;
+        var H = canvas.height || window.innerHeight;
+
+        // 绘制画面
+        var ctx = canvas.getContext('2d');
+        var w = canvas.width || 400;
+        var h = canvas.height || 600;
+        ctx.fillStyle = '#0d0a12';
+        ctx.fillRect(0, 0, w, h);
+        ctx.fillStyle = '#c45a6a';
+        ctx.font = '24px "STKaiti","华文楷体",serif';
+        ctx.textAlign = 'center';
+        ctx.fillText('故人不归', w/2, h/2 - 20);
+        ctx.fillStyle = '#886a7a';
+        ctx.font = '16px "STKaiti","华文楷体",serif';
+        ctx.fillText('游戏加载中...', w/2, h/2 + 30);
+
+        // 如果 G 对象存在，初始化玩家
+        if (typeof G !== 'undefined' && G) {
+            if (!G.player) G.player = {};
+            G.player.x = W/2;
+            G.player.y = H/2;
+            G.player.name = G.player.name || '玩家';
+            G.player.gold = G.player.gold || 100;
+            G.player.realmName = G.player.realmName || '炼气期';
+        }
+
+        // 更新HUD
+        if (typeof updateHUD === 'function') updateHUD();
+
+        // 启动游戏循环
+        if (typeof GameLoop !== 'undefined' && GameLoop && !GameLoop.isRunning) {
+            GameLoop.start();
+        }
+
+        console.log('✅ 强制启动完成');
+    };
+
+    // 立即执行
+    if (document.readyState === 'complete') {
+        setTimeout(ready, 100);
+    } else {
+        window.addEventListener('load', function() {
+            setTimeout(ready, 100);
+        });
+    }
+})();
+</script>
+<!DOCTYPE html>
+<html>
 <!DOCTYPE html>
 <html>
 <head>
