@@ -8880,4 +8880,13 @@ setTimeout(function() {
 
 console.log('✅ 第16批加载完成（AI + BGM + 语音）');
 console.log('🎵 BGM 已启动，🗣️ 语音已就绪，🤖 AI 已连接');
+    <script>
+// 强制启动
+document.getElementById('loadingScreen').style.display='none';
+var c=document.getElementById('gameCanvas');
+if(c){var ctx=c.getContext('2d');var w=c.width||400;var h=c.height||600;ctx.fillStyle='#0d0a12';ctx.fillRect(0,0,w,h);ctx.fillStyle='#c45a6a';ctx.font='20px "STKaiti","华文楷体",serif';ctx.textAlign='center';ctx.fillText('故人不归',w/2,h/2-10);ctx.fillStyle='#886a7a';ctx.font='14px "STKaiti","华文楷体",serif';ctx.fillText('游戏加载中...',w/2,h/2+30);}
+if(typeof updateHUD==='function')updateHUD();
+if(typeof GameLoop!=='undefined'&&GameLoop&&!GameLoop.isRunning)GameLoop.start();
+console.log('✅ 已启动');
+</script>
 
